@@ -243,6 +243,7 @@ create table tabCONTRATOS
  IdLocal			int not null,
  FechaInicio		smalldatetime not null,
  FechaFin			smalldatetime not null,
+ DiaPago			tinyint not null,	-- dia del mes (1-31) en que vencen las cuotas
  IdTipoMoneda		int,
  MontoAlquiler		decimal(18,2),
  MontoLuz			decimal(18,2),
@@ -261,6 +262,7 @@ create table tabCONTRATOS
  constraint fk_Contrato_TipoMoneda foreign key(IdTipoMoneda) references tabTIPO_MONEDAS(Id),
  constraint fk_Contrato_Estado foreign key(IdEstado) references tabESTADOS(Id),
  constraint ck_Contrato_Fechas check (FechaFin > FechaInicio),
+ constraint ck_Contrato_DiaPago check (DiaPago between 1 and 31),
  constraint ck_Contrato_Montos check (isnull(MontoAlquiler,0) >= 0 and isnull(MontoLuz,0) >= 0 and isnull(MontoAgua,0) >= 0
 									  and isnull(MontoMantenimiento,0) >= 0 and isnull(MontoOtros,0) >= 0)
 )
@@ -519,3 +521,4 @@ create index ix_Eventos_IdUsuario				on tabEVENTOS(IdUsuario)
 go
 
 print 'Script ejecutado con exito...'
+go
