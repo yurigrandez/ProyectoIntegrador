@@ -4,7 +4,7 @@
 /*  Convención: vwNOMBRE_EN_MAYUSCULAS                           */
 /*  Las vistas excluyen registros con FechaDesactivacion.        */
 /*****************************************************************/
-use dbALQUILERES
+use $(NombreBD)
 go
 set nocount on
 go

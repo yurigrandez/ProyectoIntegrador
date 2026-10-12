@@ -2,7 +2,7 @@
 /*  Datos.sql - Datos semilla (catálogos y usuarios iniciales)    */
 /*  Ejecutar después de Tablas.sql                                */
 /*****************************************************************/
-use dbALQUILERES
+use $(NombreBD)
 go
 set nocount on
 go
@@ -86,13 +86,13 @@ insert into tabSECUENCIA (Tabla, Anio, Prefijo, Numero) values
  ('tabCONTRATOS', cast(year(getdate()) as char(4)), 'CON', 0)
 
 print 'cargando usuarios iniciales...'
-/* IMPORTANTE: Clave contiene un marcador, no un hash real. La fase 2 define el
-   algoritmo de hash y actualiza estos valores antes de habilitar el login. */
+/* Usuarios de DEMOSTRACIÓN. Clave de ambos: Demo123*  (hash BCrypt, factor 11, generado con la
+   misma librería que usa la API). Cambiar o eliminar estos usuarios antes de usar la BD en producción. */
 insert into tabUSUARIOS (Codigo, Nombre, Paterno, Materno, Correo, Clave, IdTipoUsuario, IdTipoDocumento, NumeroDocumento, Direccion, Telefono)
-select 'ADMIN', 'Carlos', 'Mendoza', 'Rivas', 'admin@demo.pe', 'PENDIENTE_HASH', tu.Id, td.Id, '40123456', 'Av. Larco 1234, Miraflores', '987654321'
+select 'ADMIN', 'Carlos', 'Mendoza', 'Rivas', 'admin@demo.pe', '$2a$11$l3WTCiiaenCl2xU0CPu39uQLZDbfr2XX9oyp1rd19M4xlIDG0mULy', tu.Id, td.Id, '40123456', 'Av. Larco 1234, Miraflores', '987654321'
   from tabTIPO_USUARIOS tu, tabTIPO_DOCUMENTOS td where tu.Abreviatura = 'ADM' and td.Abreviatura = 'DNI'
 union all
-select 'OPERADOR', 'Lucía', 'Torres', 'Vega', 'operador@demo.pe', 'PENDIENTE_HASH', tu.Id, td.Id, '45987123', 'Jr. Union 456, Lima', '987123456'
+select 'OPERADOR', 'Lucía', 'Torres', 'Vega', 'operador@demo.pe', '$2a$11$l3WTCiiaenCl2xU0CPu39uQLZDbfr2XX9oyp1rd19M4xlIDG0mULy', tu.Id, td.Id, '45987123', 'Jr. Union 456, Lima', '987123456'
   from tabTIPO_USUARIOS tu, tabTIPO_DOCUMENTOS td where tu.Abreviatura = 'OPE' and td.Abreviatura = 'DNI'
 go
 

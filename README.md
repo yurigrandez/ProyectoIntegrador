@@ -32,10 +32,24 @@ Los scripts están en `ScriptBD/`:
 | `Datos.sql` | Catálogos y usuarios iniciales |
 | `Vistas.sql` | Vistas para las analíticas |
 | `DatosDemo.sql` | Datos de demostración (fechas relativas a hoy) |
-| `Instalar.sql` | Ejecuta todo lo anterior (modo SQLCMD): `sqlcmd -S localhost -f 65001 -b -i Instalar.sql` |
+| `Instalar.sql` | Ejecuta todo lo anterior (modo SQLCMD): `sqlcmd -S localhost -f 65001 -b -v NombreBD=dbALQUILERES -i Instalar.sql` |
 
-**Atención:** `Instalar.sql` elimina y recrea la base de datos.
+**Atención:** `Instalar.sql` elimina y recrea la base de datos indicada en `NombreBD`.
+
+## Configuración y secretos
+
+La cadena de conexión y la clave JWT **no están en el repositorio**: se usan *user-secrets* en desarrollo y variables
+de entorno en los demás ambientes. Guía completa en [docs/Configuracion.md](docs/Configuracion.md).
+
+## Ejecutar y probar (desde `Backend/`)
+
+```bash
+dotnet run --project GestionContratos.API    # documentación interactiva en /scalar (solo Desarrollo)
+dotnet test                                   # requiere la BD dbALQUILERES_TEST (ver docs/Configuracion.md)
+```
+
+Usuarios de demostración: `ADMIN` y `OPERADOR`, clave `Demo123*`.
 
 ## Estado
 
-En construcción.
+En construcción. Fases 0 a 2 completas (estructura, base de datos y núcleo técnico con login JWT). Plan en [docs/Arquitectura.md](docs/Arquitectura.md).

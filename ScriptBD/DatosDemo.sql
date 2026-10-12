@@ -4,7 +4,7 @@
 /*  Las fechas son relativas a la fecha actual, así la demo      */
 /*  siempre muestra contratos vigentes, por vencer y morosos.    */
 /*****************************************************************/
-use dbALQUILERES
+use $(NombreBD)
 go
 set nocount on
 go

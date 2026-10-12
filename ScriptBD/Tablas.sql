@@ -2,21 +2,21 @@
 go
 
 /***************Verificando si existe BD******************/
-if exists (select * from sys.databases where (name = 'dbALQUILERES'))
+if exists (select * from sys.databases where (name = '$(NombreBD)'))
 begin
-	print 'existe BD dbALQUILERES, eliminando...'
-	alter database dbALQUILERES set single_user with rollback immediate
-	drop database dbALQUILERES
+	print 'existe BD $(NombreBD), eliminando...'
+	alter database $(NombreBD) set single_user with rollback immediate
+	drop database $(NombreBD)
 end
 go
 
 /***********************Creando BD***********************/
-print 'creando BD dbALQUILERES...'
-create database dbALQUILERES
+print 'creando BD $(NombreBD)...'
+create database $(NombreBD)
 go
 
 /***********************Activando BD***********************/
-use dbALQUILERES
+use $(NombreBD)
 go
 
 /************************************/

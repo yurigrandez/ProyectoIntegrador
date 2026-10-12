@@ -1,1 +1,10 @@
 ~$*
+
+# Secretos: nunca deben subirse al repositorio (ver docs/Configuracion.md)
+secrets.json
+.env
+.env.*
+appsettings.*.local.json
+*.pfx
+*.pem
+*.key

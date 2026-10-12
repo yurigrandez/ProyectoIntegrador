@@ -5,11 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <UserSecretsId>b01661cb-bea6-4cbd-9d11-328a99c6a057</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.12" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
@@ -24,6 +26,8 @@
     <ProjectReference Include="..\GestionContratos.Negocio\GestionContratos.Negocio.csproj" />
     <ProjectReference Include="..\GestionContratos.DTOs\GestionContratos.DTOs.csproj" />
     <ProjectReference Include="..\GestionContratos.Comun\GestionContratos.Comun.csproj" />
+    <ProjectReference Include="..\GestionContratos.Datos\GestionContratos.Datos.csproj" />
+    <ProjectReference Include="..\GestionContratos.Entidades\GestionContratos.Entidades.csproj" />
   </ItemGroup>
 
 </Project>
