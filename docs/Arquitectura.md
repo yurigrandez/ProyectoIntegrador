@@ -56,6 +56,7 @@ Pruebas ──► API, Negocio
 ### Detalles del cronograma a resolver
 
 - **Meses cortos:** si `DiaPago` es 30 o 31, en los meses más cortos se usa el último día del mes.
+- **Mora:** no se guarda como estado de la cuota; se calcula comparando `FechaVencimiento` con la fecha actual (vista `vwCRONOGRAMA_SALDOS`). Los estados de cuota son pendiente, pago parcial y pagada.
 - **Primera cuota:** definir si el primer mes se cobra completo o prorrateado cuando el contrato no empieza en el día de pago.
 - **Cambio de día de pago:** si cambia a mitad del contrato, afecta solo a las cuotas pendientes.
 
@@ -99,7 +100,7 @@ Comprobantes y facturación electrónica, adendas, garantías, documentos adjunt
 | Fase | Objetivo | Entregable / criterio de salida |
 |---|---|---|
 | **0. Preparación** | Solución con los 8 proyectos (incluido `Integraciones`, vacío), referencias, `.gitignore`, convenciones y pipeline básico de build. | `dotnet build` en verde y estructura publicada en GitHub. |
-| **1. Base de datos** | Datos semilla de catálogos (incluye `PEN`), datos de demostración realistas (locales, clientes, contratos en distintos estados y pagos) y consultas o vistas para analíticas. | Script de semillas que se ejecuta sin errores. |
+| **1. Base de datos** | Datos semilla de catálogos (incluye `PEN`), datos de demostración realistas (locales, clientes, contratos en distintos estados y pagos) y consultas o vistas para analíticas. | `ScriptBD/Instalar.sql` crea la BD completa (tablas, semillas, vistas y datos de demostración) sin errores. |
 | **2. Núcleo técnico** | Entidades, `DbContext`, repositorios, Unit of Work, auditoría automática, manejo de errores, JWT, Swagger, **definición del manejo seguro de la cadena de conexión** y BD de pruebas `dbALQUILERES_TEST`. | Login funcional y una prueba de integración que corre contra la BD de pruebas. |
 | **3. Maestros** | CRUD de empresas, locales y clientes (API y pruebas). | Pruebas de integración en verde. |
 | **4. Contratos y cronograma** | Alta, autorización por segundo usuario, estados y generación del cronograma con `DiaPago`. | Reglas de negocio cubiertas por pruebas unitarias. |

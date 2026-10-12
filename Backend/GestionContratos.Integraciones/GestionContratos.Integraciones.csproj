@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\GestionContratos.Negocio\GestionContratos.Negocio.csproj" />
+    <ProjectReference Include="..\GestionContratos.DTOs\GestionContratos.DTOs.csproj" />
+    <ProjectReference Include="..\GestionContratos.Comun\GestionContratos.Comun.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

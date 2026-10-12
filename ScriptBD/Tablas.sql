@@ -1,4 +1,4 @@
-use master
+Ôªøuse master
 go
 
 /***************Verificando si existe BD******************/
@@ -471,10 +471,10 @@ create table tabINCIDENCIAS
 go
 
 /************************************/
-/*			Tablas AuditorÌa		*/
+/*			Tablas Auditor√≠a		*/
 /************************************/
 print '-------------------------'
-print 'creando Tablas AuditorÌa.'
+print 'creando Tablas Auditor√≠a.'
 print '-------------------------'
 
 print 'creando tabEVENTOS...'
@@ -492,10 +492,10 @@ create table tabEVENTOS
 go
 
 /************************************/
-/*			Õndices					*/
+/*			√çndices					*/
 /************************************/
 print '-------------------------'
-print 'creando Õndices...'
+print 'creando √çndices...'
 print '-------------------------'
 
 create index ix_Locales_IdEmpresa				on tabLOCALES(IdEmpresa)

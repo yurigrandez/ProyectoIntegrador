@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GestionContratos.Negocio\GestionContratos.Negocio.csproj" />
+    <ProjectReference Include="..\GestionContratos.Integraciones\GestionContratos.Integraciones.csproj" />
+    <ProjectReference Include="..\GestionContratos.DTOs\GestionContratos.DTOs.csproj" />
+    <ProjectReference Include="..\GestionContratos.Comun\GestionContratos.Comun.csproj" />
+  </ItemGroup>
+
+</Project>
