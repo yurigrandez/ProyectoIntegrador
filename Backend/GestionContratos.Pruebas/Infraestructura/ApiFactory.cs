@@ -43,7 +43,7 @@ public class ApiFactory : WebApplicationFactory<Program>
         {
             $"delete from tabPAGOS where IdContrato in (select c.Id {contratosDePrueba})",
             $"delete from tabCRONOGRAMA_PAGOS where IdContrato in (select c.Id {contratosDePrueba})",
-            $"delete e from tabEVENTOS e where e.Entidad = 'CONTRATO' and exists (select 1 {contratosDePrueba} and e.Mensaje like '%' + c.Codigo + '%')",
+            $"delete e from tabEVENTOS e where e.Entidad in ('CONTRATO', 'PAGO') and exists (select 1 {contratosDePrueba} and e.Mensaje like '%' + c.Codigo + '%')",
             $"delete from tabCONTRATOS where Id in (select c.Id {contratosDePrueba})",
             "delete from tabLOCALES where Codigo like @prefijo",
             "delete from tabCLIENTES where Codigo like @prefijo",

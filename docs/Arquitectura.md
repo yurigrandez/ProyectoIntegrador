@@ -125,3 +125,14 @@ Facturación electrónica (implementada en `Integraciones`), adendas, garantías
 - **Rescisión:** solo de contratos vigentes, con fecha efectiva entre el inicio y hoy. Se acorta el fin del contrato, se anulan las cuotas posteriores sin pagos y se libera el local.
 - **Vencimientos:** una tarea de fondo marca como vencidos los contratos cuyo plazo terminó y ajusta ocupado/disponible de los locales al iniciar la API y cada `Contratos:HorasEntreActualizaciones` horas (6 por defecto). Se puede desactivar con `Contratos:ActualizacionAutomatica=false` y también ejecutar a pedido con `POST /api/contratos/actualizar-estados`.
 - **Pendiente para fases siguientes:** pagos aplicados a cuotas (fase 5) y el cambio de día de pago a mitad de contrato (adendas).
+
+## 7. Reglas de pagos y morosidad implementadas (fase 5)
+
+- **Aplicación:** cada pago se aplica a una cuota del cronograma. Puede ser parcial, pero nunca mayor al saldo de la cuota (el sobrepago se rechaza). La moneda del pago es la del contrato.
+- **Estado de la cuota:** pendiente (`PEN`) sin pagos, pago parcial (`PAR`) si queda saldo y pagada (`PAG`) cuando el saldo es cero. Se recalcula al registrar y al anular pagos.
+- **Fecha de pago:** por defecto hoy; no puede ser futura ni anterior al inicio del contrato.
+- **Concurrencia:** al registrar o anular un pago se bloquea la fila de la cuota dentro de una transacción (`UPDLOCK`). Dos pagos simultáneos sobre la misma cuota se atienden uno tras otro, así el saldo validado es el real. Hay pruebas que lo verifican.
+- **Anulación:** solo el administrador, con motivo. Es una baja lógica: el pago deja de contar y la cuota vuelve al estado que corresponde. No se puede anular un pago ya asociado a un comprobante.
+- **Auditoría:** registrar y anular pagos deja un evento en `tabEVENTOS`.
+- **Morosidad:** no se guarda. Una cuota está en mora si su vencimiento es anterior a hoy y todavía tiene saldo. `GET /api/morosidad` agrupa por cliente (cuotas vencidas, monto y máximo de días de atraso) y `GET /api/morosidad/{idCliente}` detalla las cuotas. Los resultados coinciden con la vista `vwMOROSIDAD`.
+- **Pendiente:** un pago que cubra varias cuotas a la vez (hoy se registra un pago por cuota) y la asociación de pagos a comprobantes (facturación, posterior al MVP).

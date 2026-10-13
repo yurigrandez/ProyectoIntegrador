@@ -3,6 +3,7 @@ using GestionContratos.Negocio.Autenticacion;
 using GestionContratos.Negocio.Catalogos;
 using GestionContratos.Negocio.Contratos;
 using GestionContratos.Negocio.Maestros;
+using GestionContratos.Negocio.Pagos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +25,8 @@ public static class ConfiguracionNegocio
         servicios.AddScoped<IClientesServicio, ClientesServicio>();
         servicios.AddSingleton(TimeProvider.System);
         servicios.AddScoped<IContratosServicio, ContratosServicio>();
+        servicios.AddScoped<IPagosServicio, PagosServicio>();
+        servicios.AddScoped<IMorosidadServicio, MorosidadServicio>();
         return servicios;
     }
 }

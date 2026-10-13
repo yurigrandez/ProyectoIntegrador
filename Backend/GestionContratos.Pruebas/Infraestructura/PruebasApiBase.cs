@@ -30,6 +30,7 @@ public abstract class PruebasApiBase(ApiFactory fabrica) : IClassFixture<ApiFact
     protected int IdEstadoDisponible { get; private set; }
     protected int IdEstadoOcupado { get; private set; }
     protected int IdEstadoMantenimiento { get; private set; }
+    protected int IdMedioEfectivo { get; private set; }
 
     /// <summary>Empresa de demostración (EMP001), que ya tiene locales y contratos.</summary>
     protected int IdEmpresaDemo { get; private set; }
@@ -48,6 +49,7 @@ public abstract class PruebasApiBase(ApiFactory fabrica) : IClassFixture<ApiFact
         IdEstadoDisponible = await IdCatalogo("estados", "DIS");
         IdEstadoOcupado = await IdCatalogo("estados", "OCU");
         IdEstadoMantenimiento = await IdCatalogo("estados", "MAN");
+        IdMedioEfectivo = await IdCatalogo("medios-pago", "EFE");
 
         var empresas = await Admin.GetFromJsonAsync<PaginadoDto<EmpresaDto>>("/api/empresas?texto=EMP001");
         IdEmpresaDemo = empresas!.Items.Single(e => e.Codigo == "EMP001").Id;
@@ -117,6 +119,23 @@ public abstract class PruebasApiBase(ApiFactory fabrica) : IClassFixture<ApiFact
             MontoMantenimiento = mantenimiento
         };
     }
+
+    protected static DateTime PrimerDiaDelMes(int desplazamientoMeses = 0) =>
+        new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(desplazamientoMeses);
+
+    /// <summary>Registra (operador) y autoriza (administrador) un contrato; devuelve el contrato vigente.</summary>
+    protected async Task<ContratoDto> CrearContratoVigente(ContratoGuardarDto datos)
+    {
+        var borrador = await Operador.PostAsJsonAsync("/api/contratos", datos);
+        borrador.EnsureSuccessStatusCode();
+        var creado = (await borrador.Content.ReadFromJsonAsync<ContratoDto>())!;
+        var autorizado = await Admin.PostAsync($"/api/contratos/{creado.Id}/autorizar", null);
+        autorizado.EnsureSuccessStatusCode();
+        return (await autorizado.Content.ReadFromJsonAsync<ContratoDto>())!;
+    }
+
+    protected Task<List<CuotaDto>> ObtenerCronograma(int idContrato) =>
+        Operador.GetFromJsonAsync<List<CuotaDto>>($"/api/contratos/{idContrato}/cronograma")!;
 
     private async Task<HttpClient> Autenticar(string codigo)
     {
