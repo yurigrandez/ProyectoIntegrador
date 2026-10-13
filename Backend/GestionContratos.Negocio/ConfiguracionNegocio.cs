@@ -1,5 +1,7 @@
 using GestionContratos.Comun.Configuracion;
 using GestionContratos.Negocio.Autenticacion;
+using GestionContratos.Negocio.Catalogos;
+using GestionContratos.Negocio.Maestros;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +17,10 @@ public static class ConfiguracionNegocio
         servicios.AddSingleton<IHasherClave, HasherClave>();
         servicios.AddSingleton<IGeneradorToken, GeneradorToken>();
         servicios.AddScoped<IAuthServicio, AuthServicio>();
+        servicios.AddScoped<ICatalogosServicio, CatalogosServicio>();
+        servicios.AddScoped<IEmpresasServicio, EmpresasServicio>();
+        servicios.AddScoped<ILocalesServicio, LocalesServicio>();
+        servicios.AddScoped<IClientesServicio, ClientesServicio>();
         return servicios;
     }
 }

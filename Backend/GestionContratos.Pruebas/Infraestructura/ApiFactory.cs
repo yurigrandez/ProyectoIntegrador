@@ -26,6 +26,23 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Jwt:Key", JwtKeyPruebas);
     }
 
+    /// <summary>
+    /// Borra definitivamente los datos que crearon las pruebas (códigos que empiezan con el prefijo).
+    /// Orden: primero locales, luego clientes y empresas, por las llaves foráneas.
+    /// </summary>
+    public async Task LimpiarAsync(string prefijo)
+    {
+        await using var conexion = new SqlConnection(_cadenaConexion);
+        await conexion.OpenAsync();
+        foreach (var tabla in new[] { "tabLOCALES", "tabCLIENTES", "tabEMPRESAS" })
+        {
+            await using var comando = conexion.CreateCommand();
+            comando.CommandText = $"delete from {tabla} where Codigo like @prefijo";
+            comando.Parameters.AddWithValue("@prefijo", prefijo + "%");
+            await comando.ExecuteNonQueryAsync();
+        }
+    }
+
     private static string ObtenerCadenaPruebas()
     {
         var configuracion = new ConfigurationBuilder()

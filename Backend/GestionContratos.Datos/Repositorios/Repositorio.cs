@@ -10,6 +10,8 @@ public class Repositorio<T>(GestionContratosDbContext contexto) : IRepositorio<T
 
     public IQueryable<T> Consultar() => Conjunto.AsNoTracking();
 
+    public IQueryable<T> ConsultarTodos() => Conjunto.IgnoreQueryFilters().AsNoTracking();
+
     public Task<T?> ObtenerPorIdAsync(int id, CancellationToken ct = default) =>
         Conjunto.FirstOrDefaultAsync(e => e.Id == id, ct);
 

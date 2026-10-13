@@ -1,0 +1,42 @@
+using GestionContratos.Comun;
+using GestionContratos.DTOs.Comunes;
+using GestionContratos.DTOs.Maestros;
+using GestionContratos.Negocio.Maestros;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace GestionContratos.API.Controllers;
+
+/// <summary>Clientes (arrendatarios). Lectura y alta/edición: cualquier usuario autenticado. Baja: solo administrador.</summary>
+[ApiController]
+[Route("api/clientes")]
+[Authorize]
+public class ClientesController(IClientesServicio servicio) : ControllerBase
+{
+    [HttpGet]
+    public async Task<ActionResult<PaginadoDto<ClienteDto>>> Listar([FromQuery] ClienteFiltro filtro, CancellationToken ct) =>
+        Ok(await servicio.ListarAsync(filtro, ct));
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<ClienteDto>> Obtener(int id, CancellationToken ct) =>
+        Ok(await servicio.ObtenerAsync(id, ct));
+
+    [HttpPost]
+    public async Task<ActionResult<ClienteDto>> Crear(ClienteCrearDto datos, CancellationToken ct)
+    {
+        var creado = await servicio.CrearAsync(datos, ct);
+        return CreatedAtAction(nameof(Obtener), new { id = creado.Id }, creado);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<ClienteDto>> Actualizar(int id, ClienteGuardarDto datos, CancellationToken ct) =>
+        Ok(await servicio.ActualizarAsync(id, datos, ct));
+
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = Roles.Administrador)]
+    public async Task<IActionResult> Desactivar(int id, CancellationToken ct)
+    {
+        await servicio.DesactivarAsync(id, ct);
+        return NoContent();
+    }
+}
