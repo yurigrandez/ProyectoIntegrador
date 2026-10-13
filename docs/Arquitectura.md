@@ -153,3 +153,10 @@ Endpoints de solo lectura bajo `api/analiticas`, para cualquier usuario autentic
 **Decisión:** el *cobrado* de un mes cuenta los pagos recibidos en ese mes, aunque correspondan a cuotas de meses anteriores; por eso el % de cobranza puede superar 100.
 
 **Verificación:** con los datos de demostración, los resultados de la API coinciden con los de las vistas SQL de la fase 1 (`vwOCUPACION_LOCALES`, `vwMOROSIDAD`, `vwINGRESOS_MENSUALES`, `vwCONTRATOS_POR_VENCER`, `vwINGRESOS_POR_LOCAL`, `vwINGRESOS_POR_CLIENTE`). Las pruebas de integración crean su propia empresa y comprueban valores exactos.
+
+## 9. Frontend implementado (fase 7)
+
+Aplicación Angular 21 (componentes independientes, señales, sin zone.js, carga diferida) con los colores del logo de la empresa, diseño responsivo (menú en cajón y tablas como tarjetas en el celular) y pantallas para todo el flujo del MVP: login, panel con gráficos, clientes, empresas, locales, contratos (alta, autorización, rescisión, cuotas), pagos y deudas vencidas.
+Detalles de uso, estructura, decisiones de diseño y accesibilidad en [Frontend.md](Frontend.md).
+
+Con esta fase el MVP queda completo: se puede recorrer la demostración de punta a punta (el operador registra un contrato, el administrador lo autoriza, se registran pagos y el panel refleja los cambios).

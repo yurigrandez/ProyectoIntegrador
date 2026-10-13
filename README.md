@@ -16,6 +16,7 @@ Aplicación para la **gestión de contratos de alquiler de locales comerciales**
 ```
 ProyectoIntegrador/
 ├── Backend/     # Solución GestionContratos.sln (API en .NET 10 y capas)
+├── Frontend/    # Aplicación web Angular 21 (gestion-contratos)
 ├── docs/        # Arquitectura, MVP y plan de fases
 ├── Frontend/    # Aplicación Angular 21
 ├── ScriptBD/    # Scripts SQL (dbALQUILERES)
@@ -41,11 +42,20 @@ Los scripts están en `ScriptBD/`:
 La cadena de conexión y la clave JWT **no están en el repositorio**: se usan *user-secrets* en desarrollo y variables
 de entorno en los demás ambientes. Guía completa en [docs/Configuracion.md](docs/Configuracion.md).
 
-## Ejecutar y probar (desde `Backend/`)
+## Ejecutar y probar
+
+Según el caso, desde `Backend/` (API) o `Frontend/gestion-contratos` (web). Guía del frontend en [docs/Frontend.md](docs/Frontend.md).
 
 ```bash
 dotnet run --project GestionContratos.API    # documentación interactiva en /scalar (solo Desarrollo)
 dotnet test                                   # requiere la BD dbALQUILERES_TEST (ver docs/Configuracion.md)
+```
+
+Frontend (Node.js 20.19 o superior), con la API corriendo en el perfil `http`:
+
+```bash
+npm install && npm start                      # http://localhost:4200
+npm test                                      # 148 pruebas con Vitest
 ```
 
 Usuarios de demostración: `ADMIN` y `OPERADOR`, clave `Demo123*`.
@@ -75,4 +85,4 @@ con contratos o locales activos no se puede desactivar, y el estado *Ocupado* de
 
 ## Estado
 
-En construcción. Fases 0 a 6 completas (estructura, base de datos, núcleo técnico con login JWT, maestros, contratos, cronograma, pagos y analíticas del dashboard). Plan en [docs/Arquitectura.md](docs/Arquitectura.md).
+En construcción. Las 8 fases del plan están completas: backend (estructura, base de datos, núcleo técnico con login JWT, maestros, contratos, cronograma, pagos y analíticas) y frontend Angular 21 (login, panel con gráficos, clientes, empresas, locales, contratos, pagos y deudas). Plan en [docs/Arquitectura.md](docs/Arquitectura.md).
