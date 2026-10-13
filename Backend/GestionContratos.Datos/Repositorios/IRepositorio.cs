@@ -11,6 +11,9 @@ public interface IRepositorio<T> where T : EntidadBase
     /// <summary>Consulta sin seguimiento que también incluye los registros dados de baja (para validar unicidad).</summary>
     IQueryable<T> ConsultarTodos();
 
+    /// <summary>Consulta con seguimiento de cambios, para modificar varias filas y guardarlas juntas.</summary>
+    IQueryable<T> ConsultarConSeguimiento();
+
     Task<T?> ObtenerPorIdAsync(int id, CancellationToken ct = default);
     Task<T?> ObtenerAsync(Expression<Func<T, bool>> condicion, CancellationToken ct = default);
     Task<bool> ExisteAsync(Expression<Func<T, bool>> condicion, CancellationToken ct = default);

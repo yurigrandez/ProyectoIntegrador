@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using GestionContratos.DTOs.Autenticacion;
 using GestionContratos.DTOs.Catalogos;
 using GestionContratos.DTOs.Comunes;
+using GestionContratos.DTOs.Contratos;
 using GestionContratos.DTOs.Maestros;
 
 namespace GestionContratos.Pruebas.Infraestructura;
@@ -86,6 +87,36 @@ public abstract class PruebasApiBase(ApiFactory fabrica) : IClassFixture<ApiFact
         Direccion = "Calle de prueba 123",
         TotalM2 = 30m
     };
+
+    /// <summary>Acceso directo a la BD de pruebas para preparar o verificar datos.</summary>
+    protected ApiFactory Fabrica => fabrica;
+
+    /// <summary>Crea un cliente (como operador) y un local (como administrador) nuevos, aislados de los demás datos.</summary>
+    protected async Task<(int IdCliente, int IdLocal)> CrearClienteYLocal()
+    {
+        var cliente = await Operador.PostAsJsonAsync("/api/clientes", NuevoCliente());
+        cliente.EnsureSuccessStatusCode();
+        var local = await Admin.PostAsJsonAsync("/api/locales", NuevoLocal());
+        local.EnsureSuccessStatusCode();
+        return ((await cliente.Content.ReadFromJsonAsync<ClienteDto>())!.Id, (await local.Content.ReadFromJsonAsync<LocalDto>())!.Id);
+    }
+
+    /// <summary>Contrato de 12 meses que empieza el primer día del mes actual, salvo que se indique otra cosa.</summary>
+    protected static ContratoGuardarDto NuevoContrato(int idCliente, int idLocal, DateTime? inicio = null, int meses = 12,
+        int diaPago = 15, decimal alquiler = 1000m, decimal mantenimiento = 0m)
+    {
+        var desde = (inicio ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1)).Date;
+        return new ContratoGuardarDto
+        {
+            IdCliente = idCliente,
+            IdLocal = idLocal,
+            FechaInicio = desde,
+            FechaFin = desde.AddMonths(meses).AddDays(-1),
+            DiaPago = diaPago,
+            MontoAlquiler = alquiler,
+            MontoMantenimiento = mantenimiento
+        };
+    }
 
     private async Task<HttpClient> Autenticar(string codigo)
     {

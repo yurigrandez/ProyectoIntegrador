@@ -8,8 +8,9 @@
 | Desarrollo local | **user-secrets** de .NET (se guardan fuera del repositorio, en `%APPDATA%\Microsoft\UserSecrets\<id>\secrets.json`) |
 | Pruebas, QA, producción, CI | **Variables de entorno** (el doble guion bajo `__` equivale a `:` en la jerarquía) |
 
-Lo que sí va en `appsettings.json` es configuración no sensible: emisor y audiencia del JWT, minutos de expiración y
-orígenes CORS.
+Lo que sí va en `appsettings.json` es configuración no sensible: emisor y audiencia del JWT, minutos de expiración,
+orígenes CORS y los parámetros de la tarea de vencimientos (`Contratos:ActualizacionAutomatica` y
+`Contratos:HorasEntreActualizaciones`).
 
 ## Valores que necesita la API
 

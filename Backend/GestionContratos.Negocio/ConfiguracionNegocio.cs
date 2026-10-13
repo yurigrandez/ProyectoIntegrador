@@ -1,6 +1,7 @@
 using GestionContratos.Comun.Configuracion;
 using GestionContratos.Negocio.Autenticacion;
 using GestionContratos.Negocio.Catalogos;
+using GestionContratos.Negocio.Contratos;
 using GestionContratos.Negocio.Maestros;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,8 @@ public static class ConfiguracionNegocio
         servicios.AddScoped<IEmpresasServicio, EmpresasServicio>();
         servicios.AddScoped<ILocalesServicio, LocalesServicio>();
         servicios.AddScoped<IClientesServicio, ClientesServicio>();
+        servicios.AddSingleton(TimeProvider.System);
+        servicios.AddScoped<IContratosServicio, ContratosServicio>();
         return servicios;
     }
 }

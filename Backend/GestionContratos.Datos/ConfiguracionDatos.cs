@@ -28,6 +28,7 @@ public static class ConfiguracionDatos
 
         servicios.AddDbContext<GestionContratosDbContext>(o => o.UseSqlServer(cadena));
         servicios.AddScoped<IUnidadTrabajo, UnidadTrabajo>();
+        servicios.AddScoped<ISecuenciaGenerador, SecuenciaGenerador>();
         return servicios;
     }
 }

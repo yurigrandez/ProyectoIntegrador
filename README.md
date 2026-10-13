@@ -59,11 +59,16 @@ Todos los endpoints (salvo login y salud) requieren el token JWT de `POST /api/a
 | `api/clientes` | listar (paginado y con búsqueda), obtener, crear, actualizar, desactivar | Crear y editar: cualquier usuario. Desactivar: administrador |
 | `api/empresas` | ídem | Solo administrador |
 | `api/locales` | ídem, con filtros por empresa, tipo y estado | Solo administrador |
+| `api/contratos` | listar con filtros, obtener, crear (borrador), editar borrador, eliminar borrador, `cronograma`, `autorizar`, `rescindir`, `actualizar-estados` | Registrar y editar borradores: cualquier usuario. Autorizar, rescindir, eliminar y actualizar estados: administrador |
 | `api/catalogos/{nombre}` | listas para formularios (tipos de documento, monedas, estados...) | Solo lectura |
+
+Contratos: el código se genera solo (`CON-AAAA-NNNN`), nace en *borrador*, lo autoriza un administrador distinto de quien
+lo registró y al autorizarse se genera el cronograma mensual (la primera cuota se cobra completa) y se ocupa el local.
+Los contratos vencidos y el estado de los locales se actualizan al iniciar la API y cada 6 horas.
 
 Reglas principales: códigos únicos, documento válido por tipo (DNI 8 dígitos, RUC 11), un cliente, local o empresa
 con contratos o locales activos no se puede desactivar, y el estado *Ocupado* de un local lo define el contrato vigente.
 
 ## Estado
 
-En construcción. Fases 0 a 3 completas (estructura, base de datos, núcleo técnico con login JWT y maestros). Plan en [docs/Arquitectura.md](docs/Arquitectura.md).
+En construcción. Fases 0 a 4 completas (estructura, base de datos, núcleo técnico con login JWT, maestros, contratos y cronograma). Plan en [docs/Arquitectura.md](docs/Arquitectura.md).

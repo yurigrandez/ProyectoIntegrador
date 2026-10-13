@@ -24,23 +24,55 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:GestionContratos", _cadenaConexion);
         builder.UseSetting("Jwt:Key", JwtKeyPruebas);
+        // Los estados se actualizan solo cuando una prueba lo pide, para que los resultados sean predecibles.
+        builder.UseSetting("Contratos:ActualizacionAutomatica", "false");
     }
 
     /// <summary>
-    /// Borra definitivamente los datos que crearon las pruebas (códigos que empiezan con el prefijo).
-    /// Orden: primero locales, luego clientes y empresas, por las llaves foráneas.
+    /// Borra definitivamente los datos que crearon las pruebas: todo lo que cuelga de clientes, locales y
+    /// empresas cuyo código empieza con el prefijo (pagos, cronogramas, eventos y contratos incluidos).
     /// </summary>
     public async Task LimpiarAsync(string prefijo)
     {
+        const string contratosDePrueba = """
+            from tabCONTRATOS c
+            where c.IdCliente in (select Id from tabCLIENTES where Codigo like @prefijo)
+               or c.IdLocal in (select Id from tabLOCALES where Codigo like @prefijo)
+            """;
+        var comandos = new[]
+        {
+            $"delete from tabPAGOS where IdContrato in (select c.Id {contratosDePrueba})",
+            $"delete from tabCRONOGRAMA_PAGOS where IdContrato in (select c.Id {contratosDePrueba})",
+            $"delete e from tabEVENTOS e where e.Entidad = 'CONTRATO' and exists (select 1 {contratosDePrueba} and e.Mensaje like '%' + c.Codigo + '%')",
+            $"delete from tabCONTRATOS where Id in (select c.Id {contratosDePrueba})",
+            "delete from tabLOCALES where Codigo like @prefijo",
+            "delete from tabCLIENTES where Codigo like @prefijo",
+            "delete from tabEMPRESAS where Codigo like @prefijo"
+        };
+        foreach (var sql in comandos)
+            await EjecutarAsync(sql, ("@prefijo", prefijo + "%"));
+    }
+
+    /// <summary>Ejecuta una sentencia SQL directa sobre la BD de pruebas (para preparar o verificar datos).</summary>
+    public async Task EjecutarAsync(string sql, params (string Nombre, object Valor)[] parametros)
+    {
         await using var conexion = new SqlConnection(_cadenaConexion);
         await conexion.OpenAsync();
-        foreach (var tabla in new[] { "tabLOCALES", "tabCLIENTES", "tabEMPRESAS" })
-        {
-            await using var comando = conexion.CreateCommand();
-            comando.CommandText = $"delete from {tabla} where Codigo like @prefijo";
-            comando.Parameters.AddWithValue("@prefijo", prefijo + "%");
-            await comando.ExecuteNonQueryAsync();
-        }
+        await using var comando = conexion.CreateCommand();
+        comando.CommandText = sql;
+        foreach (var (nombre, valor) in parametros) comando.Parameters.AddWithValue(nombre, valor);
+        await comando.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>Devuelve el primer valor de la primera fila de una consulta SQL sobre la BD de pruebas.</summary>
+    public async Task<T> EscalarAsync<T>(string sql, params (string Nombre, object Valor)[] parametros)
+    {
+        await using var conexion = new SqlConnection(_cadenaConexion);
+        await conexion.OpenAsync();
+        await using var comando = conexion.CreateCommand();
+        comando.CommandText = sql;
+        foreach (var (nombre, valor) in parametros) comando.Parameters.AddWithValue(nombre, valor);
+        return (T)Convert.ChangeType((await comando.ExecuteScalarAsync())!, typeof(T));
     }
 
     private static string ObtenerCadenaPruebas()

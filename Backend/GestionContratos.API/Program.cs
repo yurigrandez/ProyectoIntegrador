@@ -17,6 +17,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ManejadorExcepciones>();
 builder.Services.AgregarOpenApiConJwt();
 builder.Services.AgregarCorsAngular(builder.Configuration);
+builder.Services.AddHostedService<ActualizadorEstadosContratos>();
 
 var app = builder.Build();
 

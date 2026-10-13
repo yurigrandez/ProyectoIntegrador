@@ -57,8 +57,8 @@ Pruebas ──► API, Negocio
 
 - **Meses cortos:** si `DiaPago` es 30 o 31, en los meses más cortos se usa el último día del mes.
 - **Mora:** no se guarda como estado de la cuota; se calcula comparando `FechaVencimiento` con la fecha actual (vista `vwCRONOGRAMA_SALDOS`). Los estados de cuota son pendiente, pago parcial y pagada.
-- **Primera cuota:** definir si el primer mes se cobra completo o prorrateado cuando el contrato no empieza en el día de pago.
-- **Cambio de día de pago:** si cambia a mitad del contrato, afecta solo a las cuotas pendientes.
+- **Primera cuota (decidido):** se cobra completa, porque el local se entrega al iniciar la vigencia. Si el día de pago del primer mes ya pasó al iniciar, la primera cuota vence el día de inicio. El último mes también se cobra completo y ninguna cuota vence después del fin del contrato.
+- **Cambio de día de pago:** si cambia a mitad del contrato, afecta solo a las cuotas pendientes (pendiente de implementar junto con las adendas).
 
 ## 3. MVP
 
@@ -114,3 +114,14 @@ Las fases 3 a 6 pueden avanzar en paralelo con la 7 una vez que existan los cont
 ## 5. Después del MVP
 
 Facturación electrónica (implementada en `Integraciones`), adendas, garantías, documentos de contrato, incidencias, notificaciones y reportes exportables.
+
+## 6. Reglas de contratos implementadas (fase 4)
+
+- **Código:** `CON-AAAA-NNNN`, generado de forma atómica desde `tabSECUENCIA` (una secuencia por año). Un número consumido por una operación fallida no se reutiliza, por lo que puede haber saltos.
+- **Ciclo de vida:** `BOR` (borrador, editable y eliminable) → `VIG` (autorizado) → `VEN` (plazo terminado) o `RES` (rescindido).
+- **Solapamiento:** un local no puede tener dos contratos (borrador o vigente) con fechas que se crucen; al autorizar se vuelve a verificar contra los vigentes.
+- **Autorización:** solo un administrador, distinto del usuario que registró el contrato. Un contrato con plazo ya terminado no se puede autorizar. Al autorizar se genera el cronograma, se registra un evento en `tabEVENTOS` y, si el contrato ya inició, el local pasa a ocupado.
+- **Cronograma:** un grupo de cuotas por mes y por concepto con monto mayor a cero (alquiler, luz, agua, mantenimiento, otros), todas en estado pendiente.
+- **Rescisión:** solo de contratos vigentes, con fecha efectiva entre el inicio y hoy. Se acorta el fin del contrato, se anulan las cuotas posteriores sin pagos y se libera el local.
+- **Vencimientos:** una tarea de fondo marca como vencidos los contratos cuyo plazo terminó y ajusta ocupado/disponible de los locales al iniciar la API y cada `Contratos:HorasEntreActualizaciones` horas (6 por defecto). Se puede desactivar con `Contratos:ActualizacionAutomatica=false` y también ejecutar a pedido con `POST /api/contratos/actualizar-estados`.
+- **Pendiente para fases siguientes:** pagos aplicados a cuotas (fase 5) y el cambio de día de pago a mitad de contrato (adendas).
