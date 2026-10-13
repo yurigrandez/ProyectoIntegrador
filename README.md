@@ -17,6 +17,7 @@ Aplicación para la **gestión de contratos de alquiler de locales comerciales**
 ProyectoIntegrador/
 ├── Backend/     # Solución GestionContratos.sln (API en .NET 10 y capas)
 ├── Frontend/    # Aplicación web Angular 21 (gestion-contratos)
+├── Manual_Pruebas/  # Guía para probar en modo debug y para instalar en IIS, con scripts
 ├── docs/        # Arquitectura, MVP y plan de fases
 ├── Frontend/    # Aplicación Angular 21
 ├── ScriptBD/    # Scripts SQL (dbALQUILERES)
@@ -36,6 +37,10 @@ Los scripts están en `ScriptBD/`:
 | `Instalar.sql` | Ejecuta todo lo anterior (modo SQLCMD): `sqlcmd -S localhost -f 65001 -b -v NombreBD=dbALQUILERES -i Instalar.sql` |
 
 **Atención:** `Instalar.sql` elimina y recrea la base de datos indicada en `NombreBD`.
+
+## Probar e instalar
+
+La carpeta [Manual_Pruebas](Manual_Pruebas/README.md) explica paso a paso cómo probar en **modo debug** y cómo instalar en **IIS** con usuario y clave de SQL Server guardados como variables de entorno, e incluye scripts y una lista de pruebas manuales.
 
 ## Configuración y secretos
 

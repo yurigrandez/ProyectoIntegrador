@@ -58,7 +58,7 @@ public class ContratosApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), IC
     }
 
     [Fact]
-    public async Task Crear_DosContratos_RecibenCodigosConsecutivos()
+    public async Task Crear_DosContratos_RecibenCodigosDistintosYCrecientes()
     {
         var (cliente, local1) = await CrearClienteYLocal();
         var (_, local2) = await CrearClienteYLocal();
@@ -66,8 +66,11 @@ public class ContratosApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), IC
         var primero = await CrearBorrador(NuevoContrato(cliente, local1));
         var segundo = await CrearBorrador(NuevoContrato(cliente, local2));
 
+        // Con otras solicitudes en paralelo puede haber saltos entre ambos números (la secuencia
+        // se consume aunque la operación falle), pero nunca se repite ni retrocede.
         static int Numero(string codigo) => int.Parse(codigo.Split('-')[2]);
-        Assert.Equal(Numero(primero.Codigo) + 1, Numero(segundo.Codigo));
+        Assert.NotEqual(primero.Codigo, segundo.Codigo);
+        Assert.True(Numero(segundo.Codigo) > Numero(primero.Codigo));
     }
 
     [Fact]

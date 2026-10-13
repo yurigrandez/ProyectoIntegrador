@@ -73,6 +73,15 @@ dotnet GestionContratos.API.dll
 En servidores o contenedores se definen en el gestor de secretos de la plataforma (variables del servicio, secretos
 de Docker/Kubernetes, Azure Key Vault, etc.), nunca en el código ni en la imagen.
 
+## Instalación en IIS (variables del grupo de aplicaciones)
+
+En IIS los tres valores obligatorios se guardan como **variables de entorno del grupo de aplicaciones** (no en `web.config`):
+`ASPNETCORE_ENVIRONMENT=Production`, `ConnectionStrings__GestionContratos` (con usuario y clave de SQL Server) y `Jwt__Key`.
+La cadena usa un usuario SQL de **permisos mínimos** (solo leer y escribir datos; ver `Manual_Pruebas/scripts/CrearUsuarioSql.sql`).
+Paso a paso, con scripts y solución de problemas: [Manual_Pruebas/02_Instalacion_IIS.md](../Manual_Pruebas/02_Instalacion_IIS.md).
+
+Ajuste opcional: `Web__Carpeta` (o `Web:Carpeta`) indica otra carpeta donde está la web compilada; por defecto la API sirve la carpeta `wwwroot`.
+
 ## Usuarios de demostración
 
 `ScriptBD/Datos.sql` crea dos usuarios **solo para demostración**, con la clave `Demo123*` (guardada como hash BCrypt):

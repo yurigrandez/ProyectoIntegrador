@@ -17,9 +17,9 @@ En desarrollo el archivo `proxy.conf.json` reenvía `/api` a `http://localhost:5
 el navegador siempre llama a la misma dirección y no hay problemas de CORS. La API debe estar corriendo antes de iniciar sesión
 (`dotnet run --project GestionContratos.API --launch-profile http` desde `Backend/`).
 
-**Producción:** la aplicación llama a `/api/...` con ruta relativa, por lo que debe servirse desde el mismo dominio que la API
-(por ejemplo con un proxy inverso que envíe `/api` a la API y el resto a los archivos de `dist/`). El token y la cadena de
-conexión siguen siendo secretos del servidor (ver `Configuracion.md`); el frontend no guarda ninguno.
+**Producción:** la aplicación llama a `/api/...` con ruta relativa, por lo que la web y la API deben compartir dominio. La forma más simple es la que usa el manual de IIS:
+la **API sirve la web compilada** desde su carpeta `wwwroot` (un solo sitio, un solo puerto; las pantallas se recargan sin error 404 y las rutas `/api` inexistentes siguen dando 404).
+`Manual_Pruebas/scripts/publicar.ps1` compila ambas y las deja juntas. El token y la cadena de conexión siguen siendo secretos del servidor (ver `Configuracion.md`); el frontend no guarda ninguno.
 
 ## Pantallas
 

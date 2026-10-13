@@ -160,3 +160,8 @@ Aplicación Angular 21 (componentes independientes, señales, sin zone.js, carga
 Detalles de uso, estructura, decisiones de diseño y accesibilidad en [Frontend.md](Frontend.md).
 
 Con esta fase el MVP queda completo: se puede recorrer la demostración de punta a punta (el operador registra un contrato, el administrador lo autoriza, se registran pagos y el panel refleja los cambios).
+
+## 10. Guía de pruebas e instalación (Manual_Pruebas)
+
+La carpeta `Manual_Pruebas` reúne la guía para probar en modo debug y para instalar en IIS (usuario y clave de SQL Server en variables de entorno del grupo de aplicaciones), con scripts de publicación, verificación automática y una lista de pruebas manuales.
+Para el despliegue en IIS la API sirve también la web compilada (`wwwroot`), por lo que se instala un solo sitio.
