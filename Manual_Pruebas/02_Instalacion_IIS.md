@@ -48,7 +48,7 @@ El *Hosting Bundle* es lo que permite que IIS ejecute aplicaciones .NET.
 
 ```powershell
 dotnet --list-runtimes | Select-String "Microsoft.AspNetCore.App 10"
-Test-Path "$env:windir\System32\inetsrv\aspnetcorev2.dll"      # debe mostrar True
+Test-Path "$env:ProgramFiles\IIS\Asp.Net Core Module\V2\aspnetcorev2.dll"    # debe mostrar True
 ```
 
 ## Paso 3. Preparar SQL Server
@@ -100,7 +100,11 @@ Si aparece `FALLÓ`, el propio script explica las causas más habituales. **No s
 
 ## Paso 4. Publicar la aplicación
 
-Compila la web y la API y las deja juntas en una carpeta (la API sirve la web). Necesita el SDK de .NET 10 y Node.js 20.19 o superior en el equipo donde compila (no hacen falta en el servidor IIS). Desde la raíz del proyecto:
+Compila la web y la API y las deja juntas en una carpeta (la API sirve la web). Necesita el SDK de .NET 10 y Node.js 20.19 o superior en el equipo donde compila (no hacen falta en el servidor IIS).
+
+> **Use PowerShell como administrador.** `C:\inetpub` es una carpeta protegida de Windows: sin permisos de administrador el script se detiene al inicio con el mensaje «No se puede escribir en…». (Alternativa sin administrador: publique en una carpeta propia, por ejemplo `-Destino C:\Publicado`, y cópiela a `C:\inetpub\GestionContratos` como administrador con `robocopy C:\Publicado C:\inetpub\GestionContratos /MIR`.)
+
+Desde la raíz del proyecto:
 
 ```powershell
 .\Manual_Pruebas\scripts\publicar.ps1 -Destino C:\inetpub\GestionContratos
@@ -199,7 +203,7 @@ IIS **recicla el grupo solo** cuando se cambian sus variables. Si no ve el cambi
    Le pide la clave de los usuarios de demostración. **Resultado esperado:** `Todo en orden: 12 de 12 comprobaciones correctas.`
 2. Abra `http://localhost:8080` en el navegador: debe verse el login con el logo. Ingrese y recorra la [lista de pruebas](03_Lista_de_Pruebas.md).
 3. Recargue la página estando en `/contratos` (tecla F5): no debe dar error 404.
-4. En esta instalación **no** debe existir `http://localhost:8080/scalar` ni `/openapi/v1.json` (son solo de modo debug).
+4. `http://localhost:8080/scalar` y `/openapi/v1.json` (documentación de la API, solo de modo debug) **no deben mostrar la documentación**: verá la pantalla de ingreso de la web, nunca una página de Scalar ni un texto JSON.
 
 ### HTTPS (recomendado antes de usar con otras personas)
 
@@ -245,7 +249,8 @@ Primero mire **dónde** está el error: la ventana del navegador (código HTTP),
 | Cambié una variable y no se nota | `Restart-WebAppPool GestionContratos`. |
 | Todos tienen que volver a ingresar | Cambió `Jwt__Key` (o se ejecutó `-RotarClaveJwt`). Es lo esperado. |
 | `Acceso denegado` en `logs` | Falta el permiso *Modificar* de `IIS AppPool\GestionContratos` sobre `C:\inetpub\GestionContratos\logs`. |
-| El script dice *Falta el módulo de ASP.NET Core* | Paso 2 incompleto. Compruebe con `Test-Path "$env:windir\System32\inetsrv\aspnetcorev2.dll"`. |
+| `publicar.ps1` dice *No se puede escribir en 'C:\inetpub\…'* | Falta abrir PowerShell **como administrador** (ver paso 4). |
+| El script dice *Falta el módulo de ASP.NET Core* | Paso 2 incompleto. Compruebe con `Test-Path "$env:ProgramFiles\IIS\Asp.Net Core Module\V2\aspnetcorev2.dll"` (debe dar True) y, como administrador, con `Get-WebGlobalModule -Name AspNetCoreModuleV2` (debe mostrar el módulo). |
 | El puerto 8080 está en uso | Use otro: `-Puerto 8090`. |
 
 ### Ver el mensaje de error de la aplicación (registro `stdout`)

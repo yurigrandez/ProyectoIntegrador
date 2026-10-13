@@ -16,7 +16,7 @@ import { Modal } from '../../shared/modal/modal';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <gc-modal titulo="Anular pago" (cerrar)="cancelar.emit()">
-      <form id="form-anular" (ngSubmit)="anular()" novalidate class="apilado">
+      <form id="form-anular" (submit)="alEnviar($event)" novalidate class="apilado">
         <div class="caja aviso"><gc-icono nombre="alerta" [tamano]="20" />
           <div>Se anulará el pago de <b>{{ dinero(pago().monto) }}</b> del {{ fecha(pago().fechaPago) }}
             (contrato {{ pago().codigoContrato }}). La cuota volverá a mostrar ese monto como pendiente.</div></div>
@@ -50,6 +50,15 @@ export class AnularPagoDialogo {
   protected readonly motivo = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(500)] });
   protected readonly guardando = signal(false);
   protected readonly error = signal<string | null>(null);
+
+  /**
+   * Este formulario no tiene `formGroup`, así que Angular no intercepta el envío: sin `preventDefault`
+   * el navegador recargaría la página en lugar de anular el pago.
+   */
+  protected alEnviar(evento: Event): void {
+    evento.preventDefault();
+    this.anular();
+  }
 
   protected anular(): void {
     if (this.motivo.invalid) {

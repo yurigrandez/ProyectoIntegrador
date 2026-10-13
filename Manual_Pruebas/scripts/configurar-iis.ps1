@@ -43,10 +43,14 @@ $ruta = 'MACHINE/WEBROOT/APPHOST'
 if (-not (Test-Path (Join-Path $Destino 'web.config'))) {
     throw "No hay una aplicación publicada en '$Destino' (falta web.config). Ejecute primero publicar.ps1."
 }
-if (-not (Test-Path "$env:windir\System32\inetsrv\aspnetcorev2.dll")) {
-    throw "Falta el módulo de ASP.NET Core para IIS. Instale el '.NET 10 Hosting Bundle' (después de instalar IIS) y vuelva a intentar."
+$modulo = Join-Path $env:ProgramFiles 'IIS\Asp.Net Core Module\V2\aspnetcorev2.dll'
+if (-not (Test-Path $modulo)) {
+    throw "Falta el módulo de ASP.NET Core para IIS ($modulo). Instale el '.NET 10 Hosting Bundle' (después de instalar IIS) y vuelva a intentar."
 }
 Import-Module WebAdministration
+if (-not (Get-WebGlobalModule -Name 'AspNetCoreModuleV2' -ErrorAction SilentlyContinue)) {
+    throw "IIS no tiene registrado el módulo AspNetCoreModuleV2. Ejecute de nuevo el instalador del Hosting Bundle y elija 'Reparar'; luego 'net stop was /y' y 'net start w3svc'."
+}
 
 if (-not $Clave) { $Clave = Read-Host -Prompt "Clave de $UsuarioSql en SQL Server" -AsSecureString }
 $claveTexto = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Clave))

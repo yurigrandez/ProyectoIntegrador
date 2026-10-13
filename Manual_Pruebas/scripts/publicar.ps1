@@ -12,6 +12,10 @@
 .REQUISITOS
   SDK de .NET 10 y Node.js 20.19 o superior (solo en el equipo donde se compila, no hacen falta en el servidor IIS).
 
+.NOTA
+  Escribir en C:\inetpub requiere abrir PowerShell COMO ADMINISTRADOR. Si prefiere no hacerlo, publique en una
+  carpeta propia (por ejemplo C:\Publicado) y copie el resultado al servidor como administrador con robocopy.
+
 .EJEMPLO
   .\publicar.ps1 -Destino C:\inetpub\GestionContratos
   .\publicar.ps1 -Destino C:\inetpub\GestionContratos -SinWeb      # solo la API
@@ -35,10 +39,23 @@ function Revisar([string]$paso) {
 Exigir 'dotnet' 'Instale el SDK de .NET 10 (https://dot.net).'
 if (-not $SinWeb) { Exigir 'npm' 'Instale Node.js 20.19 o superior (https://nodejs.org).' }
 
+# Se comprueba el permiso de escritura ANTES de compilar (C:\inetpub, por ejemplo, exige administrador).
+try {
+    New-Item -ItemType Directory -Path $Destino -Force -ErrorAction Stop | Out-Null
+    $prueba = Join-Path $Destino ('.permiso-' + [guid]::NewGuid().ToString('N'))
+    Set-Content -Path $prueba -Value 'x' -ErrorAction Stop
+    Remove-Item $prueba -Force
+}
+catch {
+    throw "No se puede escribir en '$Destino': $($_.Exception.Message) Abra PowerShell como administrador, o elija otra carpeta con -Destino y copie el resultado después."
+}
+
 # ---------------------------------------------------------------- 1. Web
 if (-not $SinWeb) {
     Write-Host '1/3 Compilando la web (Angular)...' -ForegroundColor Cyan
     $carpetaWeb = Join-Path $raiz 'Frontend\gestion-contratos'
+    # Evita que Angular pregunte por las estadísticas de uso (detendría el script) y modifique angular.json.
+    $env:NG_CLI_ANALYTICS = 'false'
     Push-Location $carpetaWeb
     try {
         npm ci; Revisar 'npm ci'

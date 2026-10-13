@@ -23,7 +23,7 @@ Recorra estas pruebas **en orden** sobre la instalación que quiera validar (mod
 | A5 | Entrar y pulsar **Salir**; luego el botón *Atrás* del navegador | Vuelve al login y no muestra datos; al recargar sigue pidiendo ingreso | [ ] |
 | A6 | Entrar, cerrar la pestaña y abrir la dirección en una pestaña nueva | Pide ingresar otra vez (la sesión no sobrevive al cierre de la pestaña) | [ ] |
 | A7 | **Sesión vencida.** Entrar, abrir F12 → *Consola* y pegar: `const s=JSON.parse(sessionStorage['gc.sesion']); s.expira='2000-01-01T00:00:00Z'; sessionStorage['gc.sesion']=JSON.stringify(s); location.reload()` | Vuelve al login y pide ingresar de nuevo (la web detecta que la sesión venció antes de llamar al servidor) | [ ] |
-| A8 | **Token alterado.** Entrar, en la consola cambiar un carácter del token (`const s=JSON.parse(sessionStorage['gc.sesion']); s.token=s.token.slice(0,-3)+'abc'; sessionStorage['gc.sesion']=JSON.stringify(s)`) y navegar a otra pantalla del menú | Se cierra la sesión y lleva al login con el aviso «Su sesión terminó» (el servidor rechaza el token) | [ ] |
+| A8 | **Token alterado.** Entrar, abrir F12 → *Consola* y pegar: `const s=JSON.parse(sessionStorage['gc.sesion']); s.token=s.token.slice(0,-3)+'abc'; sessionStorage['gc.sesion']=JSON.stringify(s); location.reload()` | Tras recargar, el servidor rechaza el token alterado: se cierra la sesión y lleva al login con el aviso «Su sesión terminó» | [ ] |
 
 ## B. Como OPERADOR
 
@@ -115,8 +115,8 @@ Entre con **ADMIN** (en la otra ventana).
 |---|---|---|---|
 | H1 | En PowerShell: `curl.exe -i http://localhost:8080/api/clientes` | Respuesta **401** (sin sesión no hay datos) | [ ] |
 | H2 | Con OPERADOR intentar llamar a `autorizar` o crear empresa (lo comprueba `verificar.ps1`) | **403** | [ ] |
-| H3 | (IIS) Abrir `http://localhost:8080/scalar` y `/openapi/v1.json` | **No existen** (404). Si aparecen, `ASPNETCORE_ENVIRONMENT` no es `Production` | [ ] |
-| H4 | (IIS) Buscar claves en los archivos de la aplicación: `Select-String -Path C:\inetpub\GestionContratos\*.json, C:\inetpub\GestionContratos\web.config -Pattern "Password=","Jwt"` | **Sin resultados** con claves (solo puede aparecer el nombre `Jwt` en `appsettings.json` con el emisor y los minutos, nunca la clave) | [ ] |
+| H3 | (IIS) Abrir `http://localhost:8080/scalar` y `http://localhost:8080/openapi/v1.json` | **No muestran la documentación de la API**: aparece la pantalla de ingreso de la web (ni una página de Scalar ni un JSON). Si aparece la documentación, `ASPNETCORE_ENVIRONMENT` no es `Production` | [ ] |
+| H4 | (IIS) Buscar claves en los archivos de la aplicación: `Select-String -Path C:\inetpub\GestionContratos\*.json, C:\inetpub\GestionContratos\web.config -Pattern "Password=","Jwt__Key",([regex]::Escape('"Key"'))` | **Sin resultados**: la cadena de conexión y la clave del token no están en ningún archivo de la aplicación | [ ] |
 | H5 | (IIS) Con un usuario normal de Windows (no administrador) intentar abrir `C:\Windows\System32\inetsrv\config\applicationHost.config` | **Acceso denegado** (ahí están las variables de entorno) | [ ] |
 | H6 | Comprobar los permisos del usuario SQL: con `gc_app` ejecutar `create table x(id int)` | Error **«CREATE TABLE permission denied»** | [ ] |
 | H7 | Mirar la pantalla de login en la instalación de IIS | **No** muestra la clave de demostración (ese aviso solo existe en modo debug) | [ ] |
