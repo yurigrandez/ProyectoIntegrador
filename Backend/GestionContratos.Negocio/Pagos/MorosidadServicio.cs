@@ -13,6 +13,9 @@ public interface IMorosidadServicio
 
     /// <summary>Cuotas vencidas con saldo de un cliente, de la más antigua a la más reciente.</summary>
     Task<IReadOnlyList<CuotaVencidaDto>> DetalleDeClienteAsync(int idCliente, CancellationToken ct = default);
+
+    /// <summary>Todas las cuotas vencidas con saldo a hoy, opcionalmente de una sola empresa (para las analíticas).</summary>
+    Task<IReadOnlyList<CuotaVencidaDto>> CuotasVencidasAsync(int? idEmpresa = null, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -25,7 +28,7 @@ public class MorosidadServicio(IUnidadTrabajo unidad, TimeProvider reloj) : IMor
 
     public async Task<IReadOnlyList<MorosoDto>> ListarAsync(CancellationToken ct = default)
     {
-        var cuotas = await CuotasVencidasAsync(null, ct);
+        var cuotas = (await ObtenerCuotasVencidasAsync(null, null, ct)).Select(c => (c.IdCliente, Cuota: c)).ToList();
         var clientes = await unidad.Repositorio<Cliente>().Consultar()
             .Where(c => cuotas.Select(q => q.IdCliente).Distinct().Contains(c.Id))
             .Select(c => new
@@ -57,46 +60,43 @@ public class MorosidadServicio(IUnidadTrabajo unidad, TimeProvider reloj) : IMor
         if (!await unidad.Repositorio<Cliente>().ExisteAsync(c => c.Id == idCliente, ct))
             throw new ExcepcionNoEncontrado($"No existe el cliente con id {idCliente}.");
 
-        return (await CuotasVencidasAsync(idCliente, ct))
-            .Select(q => q.Cuota)
+        return (await ObtenerCuotasVencidasAsync(idCliente, null, ct))
             .OrderBy(c => c.FechaVencimiento).ThenBy(c => c.CodigoContrato).ThenBy(c => c.Concepto)
             .ToList();
     }
 
-    private async Task<List<(int IdCliente, CuotaVencidaDto Cuota)>> CuotasVencidasAsync(int? idCliente, CancellationToken ct)
+    public async Task<IReadOnlyList<CuotaVencidaDto>> CuotasVencidasAsync(int? idEmpresa = null, CancellationToken ct = default) =>
+        await ObtenerCuotasVencidasAsync(null, idEmpresa, ct);
+
+    private async Task<List<CuotaVencidaDto>> ObtenerCuotasVencidasAsync(int? idCliente, int? idEmpresa, CancellationToken ct)
     {
         var hoy = Hoy;
         var consulta = unidad.Repositorio<CronogramaPago>().Consultar()
             .Where(c => c.FechaVencimiento < hoy && (c.Estado == null || c.Estado.Abreviatura != EstadoCuota.Pagada));
         if (idCliente is { } cliente) consulta = consulta.Where(c => c.Contrato.IdCliente == cliente);
+        if (idEmpresa is { } empresa) consulta = consulta.Where(c => c.Contrato.Local.IdEmpresa == empresa);
 
-        var filas = await consulta
-            .Select(c => new
+        var cuotas = await consulta
+            .Select(c => new CuotaVencidaDto
             {
-                c.Contrato.IdCliente,
-                Cuota = new CuotaVencidaDto
-                {
-                    IdCronogramaPago = c.Id,
-                    IdContrato = c.IdContrato,
-                    CodigoContrato = c.Contrato.Codigo,
-                    CodigoLocal = c.Contrato.Local.Codigo,
-                    Concepto = c.Concepto.Abreviatura,
-                    NroCuota = c.NroCuota,
-                    FechaVencimiento = c.FechaVencimiento,
-                    Monto = c.Monto,
-                    Pagado = c.Pagos.Sum(p => (decimal?)p.Monto) ?? 0
-                }
+                IdCronogramaPago = c.Id,
+                IdCliente = c.Contrato.IdCliente,
+                IdContrato = c.IdContrato,
+                CodigoContrato = c.Contrato.Codigo,
+                CodigoLocal = c.Contrato.Local.Codigo,
+                Concepto = c.Concepto.Abreviatura,
+                NroCuota = c.NroCuota,
+                FechaVencimiento = c.FechaVencimiento,
+                Monto = c.Monto,
+                Pagado = c.Pagos.Sum(p => (decimal?)p.Monto) ?? 0
             })
             .ToListAsync(ct);
 
-        return filas
-            .Select(f =>
-            {
-                f.Cuota.Saldo = f.Cuota.Monto - f.Cuota.Pagado;
-                f.Cuota.DiasAtraso = (int)(hoy - f.Cuota.FechaVencimiento).TotalDays;
-                return (f.IdCliente, f.Cuota);
-            })
-            .Where(f => f.Cuota.Saldo > 0)
-            .ToList();
+        foreach (var cuota in cuotas)
+        {
+            cuota.Saldo = cuota.Monto - cuota.Pagado;
+            cuota.DiasAtraso = (int)(hoy - cuota.FechaVencimiento).TotalDays;
+        }
+        return cuotas.Where(c => c.Saldo > 0).ToList();
     }
 }

@@ -75,6 +75,7 @@ public class MorosoDto
 public class CuotaVencidaDto
 {
     public int IdCronogramaPago { get; set; }
+    public int IdCliente { get; set; }
     public int IdContrato { get; set; }
     public string CodigoContrato { get; set; } = string.Empty;
     public string? CodigoLocal { get; set; }

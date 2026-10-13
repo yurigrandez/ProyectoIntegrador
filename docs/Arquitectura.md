@@ -136,3 +136,20 @@ Facturación electrónica (implementada en `Integraciones`), adendas, garantías
 - **Auditoría:** registrar y anular pagos deja un evento en `tabEVENTOS`.
 - **Morosidad:** no se guarda. Una cuota está en mora si su vencimiento es anterior a hoy y todavía tiene saldo. `GET /api/morosidad` agrupa por cliente (cuotas vencidas, monto y máximo de días de atraso) y `GET /api/morosidad/{idCliente}` detalla las cuotas. Los resultados coinciden con la vista `vwMOROSIDAD`.
 - **Pendiente:** un pago que cubra varias cuotas a la vez (hoy se registra un pago por cuota) y la asociación de pagos a comprobantes (facturación, posterior al MVP).
+
+## 8. Analíticas del dashboard implementadas (fase 6)
+
+Endpoints de solo lectura bajo `api/analiticas`, para cualquier usuario autenticado. Todos aceptan `idEmpresa` (si no existe responden 404; sin él consolidan todas las empresas) y se calculan a la fecha de hoy.
+
+| Endpoint | Qué devuelve |
+|---|---|
+| `resumen` | Indicadores del encabezado: locales (total, ocupados, disponibles, en mantenimiento, % de ocupación), contratos vigentes, esperado y cobrado del mes con su % de cobranza, deuda vencida (monto, cuotas, clientes) y contratos por vencer a 30, 60 y 90 días (acumulados) |
+| `ocupacion` | Por empresa: total, ocupados, en mantenimiento, disponibles y % de ocupación. *Ocupado* = contrato vigente que cubre hoy (no depende del estado guardado del local) |
+| `ingresos-mensuales` | Mes a mes: esperado (cuotas que vencen en el mes), cobrado (pagos recibidos en el mes), diferencia y % de cobranza. Rango por defecto: 12 meses hasta el actual; máximo 60; incluye los meses sin movimiento con ceros |
+| `morosidad` | Deuda vencida total, cuotas, clientes y mayor atraso, con la antigüedad en rangos de 1-30, 31-60, 61-90 y más de 90 días |
+| `contratos-por-vencer` | Contratos vigentes que terminan dentro de `dias` (1 a 365, 90 por defecto), del más próximo al más lejano |
+| `top-locales`, `top-clientes` | Los que más han cobrado en el período (`desde`/`hasta` opcionales; sin ellos, todo el historial). `top` de 1 a 50, 5 por defecto |
+
+**Decisión:** el *cobrado* de un mes cuenta los pagos recibidos en ese mes, aunque correspondan a cuotas de meses anteriores; por eso el % de cobranza puede superar 100.
+
+**Verificación:** con los datos de demostración, los resultados de la API coinciden con los de las vistas SQL de la fase 1 (`vwOCUPACION_LOCALES`, `vwMOROSIDAD`, `vwINGRESOS_MENSUALES`, `vwCONTRATOS_POR_VENCER`, `vwINGRESOS_POR_LOCAL`, `vwINGRESOS_POR_CLIENTE`). Las pruebas de integración crean su propia empresa y comprueban valores exactos.

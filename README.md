@@ -62,6 +62,7 @@ Todos los endpoints (salvo login y salud) requieren el token JWT de `POST /api/a
 | `api/contratos` | listar con filtros, obtener, crear (borrador), editar borrador, eliminar borrador, `cronograma`, `autorizar`, `rescindir`, `actualizar-estados` | Registrar y editar borradores: cualquier usuario. Autorizar, rescindir, eliminar y actualizar estados: administrador |
 | `api/pagos` | listar con filtros, obtener, registrar (total o parcial), `anular` | Registrar: cualquier usuario. Anular: administrador |
 | `api/morosidad` | clientes con deuda vencida y detalle de cuotas vencidas por cliente | Solo lectura |
+| `api/analiticas/*` | `resumen`, `ocupacion`, `ingresos-mensuales`, `morosidad`, `contratos-por-vencer`, `top-locales`, `top-clientes` (todos con `idEmpresa` opcional) | Solo lectura |
 | `api/catalogos/{nombre}` | listas para formularios (tipos de documento, monedas, estados...) | Solo lectura |
 
 Contratos: el código se genera solo (`CON-AAAA-NNNN`), nace en *borrador*, lo autoriza un administrador distinto de quien
@@ -74,4 +75,4 @@ con contratos o locales activos no se puede desactivar, y el estado *Ocupado* de
 
 ## Estado
 
-En construcción. Fases 0 a 5 completas (estructura, base de datos, núcleo técnico con login JWT, maestros, contratos, cronograma y pagos). Plan en [docs/Arquitectura.md](docs/Arquitectura.md).
+En construcción. Fases 0 a 6 completas (estructura, base de datos, núcleo técnico con login JWT, maestros, contratos, cronograma, pagos y analíticas del dashboard). Plan en [docs/Arquitectura.md](docs/Arquitectura.md).

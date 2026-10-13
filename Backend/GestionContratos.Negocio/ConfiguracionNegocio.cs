@@ -1,4 +1,5 @@
 using GestionContratos.Comun.Configuracion;
+using GestionContratos.Negocio.Analiticas;
 using GestionContratos.Negocio.Autenticacion;
 using GestionContratos.Negocio.Catalogos;
 using GestionContratos.Negocio.Contratos;
@@ -27,6 +28,7 @@ public static class ConfiguracionNegocio
         servicios.AddScoped<IContratosServicio, ContratosServicio>();
         servicios.AddScoped<IPagosServicio, PagosServicio>();
         servicios.AddScoped<IMorosidadServicio, MorosidadServicio>();
+        servicios.AddScoped<IAnaliticasServicio, AnaliticasServicio>();
         return servicios;
     }
 }
