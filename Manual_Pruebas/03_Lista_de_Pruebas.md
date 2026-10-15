@@ -69,12 +69,12 @@ Entre con **ADMIN** (en la otra ventana).
 
 | # | Qué hacer | Qué debe pasar | OK |
 |---|---|---|---|
-| D1 | En un contrato vigente, **Pagar** una cuota de 1000 y registrar **400** | Aviso «Pago de S/ 400.00 registrado»; la cuota queda **Pago parcial** y «Falta» S/ 600 | [ ] |
-| D2 | **Pagar** esa cuota con **600** | Pasa a **Pagada**, falta S/ 0 | [ ] |
+| D1 | En un contrato vigente, **Pagar** una cuota que **aún no venció** (por ejemplo la del mes siguiente) de 1000 y registrar **400** | Aviso «Pago de S/ 400.00 registrado»; la cuota queda **Pago parcial** y «Falta» S/ 600. (Una cuota que ya estaba vencida sigue mostrándose **Vencida**, con lo pagado y lo que falta) | [ ] |
+| D2 | **Pagar** esa misma cuota con lo que falta (**600**) | Pasa a **Pagada**, falta S/ 0 | [ ] |
 | D3 | Intentar pagar **más** de lo que falta | El campo marca error «no puede ser mayor que lo que falta pagar» y no deja guardar | [ ] |
 | D4 | Intentar una **fecha futura** | Error «La fecha de pago no puede ser futura» | [ ] |
 | D5 | Monto `0` o negativo | Error; no se guarda | [ ] |
-| D6 | Como ADMIN, en **Pagos**, **Anular** el pago de 600 con un motivo | Aviso «Pago anulado»; la cuota vuelve a **Pago parcial** (falta 600) | [ ] |
+| D6 | Como ADMIN, en **Pagos**, **Anular** el pago de 600 con un motivo | Aviso «Pago anulado»; la cuota vuelve a **Pago parcial** (falta 600), o a **Vencida** si ya pasó su fecha | [ ] |
 | D7 | Como OPERADOR, mirar la lista de pagos | **No** aparece el botón *Anular* | [ ] |
 | D8 | **Pagos → Registrar un pago**: elegir contrato y luego una cuota | Solo ofrece cuotas con saldo, de la más antigua a la más reciente; elegir una llena el monto con su saldo | [ ] |
 | D9 | **Dos personas a la vez.** En dos ventanas abrir el pago de la **misma cuota** (saldo completo) y registrar el pago en ambas, una justo después de otra | La primera se registra; la segunda recibe «La cuota ya está pagada por completo» (nunca se paga de más) | [ ] |
