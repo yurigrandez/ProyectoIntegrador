@@ -83,5 +83,5 @@ Se usan componentes independientes, señales, flujo de control nativo (`@if`, `@
 
 ## Pruebas
 
-148 pruebas con **Vitest**: formatos y fechas (reglas iguales a las del servidor), validadores, escalas de gráficos, errores de la API, sesión, interceptor y guardas, y las pantallas
+154 pruebas con **Vitest**: formatos y fechas (reglas iguales a las del servidor), validadores, escalas de gráficos, errores de la API, sesión, interceptor y guardas, y las pantallas
 principales (login, clientes, registro de pagos, formulario de contrato) contra una API simulada. Se comprobó que detectan errores introduciendo fallos a propósito.
