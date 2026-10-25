@@ -15,13 +15,14 @@ Aplicación para la **gestión de contratos de alquiler de locales comerciales**
 
 ```
 ProyectoIntegrador/
-├── Backend/     # Solución GestionContratos.sln (API en .NET 10 y capas)
-├── Frontend/    # Aplicación web Angular 21 (gestion-contratos)
+├── Backend/         # Solución GestionContratos.sln (API en .NET 10 y capas)
+├── Frontend/        # Aplicación web Angular 21 (gestion-contratos)
+├── ScriptBD/        # Scripts SQL (dbALQUILERES)
 ├── Manual_Pruebas/  # Guía para probar en modo debug y para instalar en IIS, con scripts
-├── docs/        # Arquitectura, MVP y plan de fases
-├── Frontend/    # Aplicación Angular 21
-├── ScriptBD/    # Scripts SQL (dbALQUILERES)
-└── Prompts/     # Definición del proyecto y prompts
+├── docs/            # Arquitectura, configuración, frontend y manuales (usuario y pruebas) en Word
+├── Presentacion/    # Especificación con matriz de trazabilidad y evidencias de uso de IA
+├── Prompts/         # Definición del proyecto y prompts usados con la IA
+└── Imagenes/        # Logos de la empresa
 ```
 
 ## Base de datos
