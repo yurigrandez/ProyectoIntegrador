@@ -20,6 +20,8 @@
 
 ### Análisis de seguridad
 - Antes de realizar un commit, ejecuta `/security-review` sobre los cambios pendientes y reporta los hallazgos al usuario. Atiende los hallazgos relevantes antes de confirmar el commit.
+- **Excepción:** si el cambio es únicamente de documentación (archivos `.md`, `.docx`, imágenes de documentación, etc.), no es necesario ejecutar `/security-review`. Aun así, revisa que no incluya datos sensibles.
+- Si el cambio incluye **cualquier modificación de código** (aunque venga junto con documentación), es obligatorio ejecutar `/security-review`.
 
 ### Pull request
 - Cuando el pull request se fusione, **elimina la rama** del cambio, tanto en el remoto como en local, y deja el repositorio local en `main` actualizado.
