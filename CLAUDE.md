@@ -20,3 +20,6 @@
 
 ### Análisis de seguridad
 - Antes de realizar un commit, ejecuta `/security-review` sobre los cambios pendientes y reporta los hallazgos al usuario. Atiende los hallazgos relevantes antes de confirmar el commit.
+
+### Pull request
+- Cuando el pull request se fusione, **elimina la rama** del cambio, tanto en el remoto como en local, y deja el repositorio local en `main` actualizado.
