@@ -22,7 +22,7 @@ public class ClientesController(IClientesServicio servicio) : ControllerBase
         Ok(await servicio.ObtenerAsync(id, ct));
 
     [HttpPost]
-    public async Task<ActionResult<ClienteDto>> Crear(ClienteCrearDto datos, CancellationToken ct)
+    public async Task<ActionResult<ClienteDto>> Crear(ClienteGuardarDto datos, CancellationToken ct)
     {
         var creado = await servicio.CrearAsync(datos, ct);
         return CreatedAtAction(nameof(Obtener), new { id = creado.Id }, creado);

@@ -13,13 +13,13 @@ public interface ILocalesServicio
 {
     Task<PaginadoDto<LocalDto>> ListarAsync(LocalFiltro filtro, CancellationToken ct = default);
     Task<LocalDto> ObtenerAsync(int id, CancellationToken ct = default);
-    Task<LocalDto> CrearAsync(LocalCrearDto datos, CancellationToken ct = default);
+    Task<LocalDto> CrearAsync(LocalGuardarDto datos, CancellationToken ct = default);
     Task<LocalDto> ActualizarAsync(int id, LocalGuardarDto datos, CancellationToken ct = default);
     /// <summary>Baja lógica. No se permite si el local tiene contratos borrador o vigentes.</summary>
     Task DesactivarAsync(int id, CancellationToken ct = default);
 }
 
-public class LocalesServicio(IUnidadTrabajo unidad) : ILocalesServicio
+public class LocalesServicio(IUnidadTrabajo unidad, ISecuenciaGenerador secuencias) : ILocalesServicio
 {
     private const string Disponible = "DIS";
     private const string Ocupado = "OCU";
@@ -62,15 +62,14 @@ public class LocalesServicio(IUnidadTrabajo unidad) : ILocalesServicio
         await unidad.Repositorio<Local>().Consultar().Where(l => l.Id == id).Select(Proyeccion).FirstOrDefaultAsync(ct)
         ?? throw new ExcepcionNoEncontrado($"No existe el local con id {id}.");
 
-    public async Task<LocalDto> CrearAsync(LocalCrearDto datos, CancellationToken ct = default)
+    public async Task<LocalDto> CrearAsync(LocalGuardarDto datos, CancellationToken ct = default)
     {
         var repositorio = unidad.Repositorio<Local>();
-        var codigo = datos.Codigo.Trim();
-        if (await repositorio.ConsultarTodos().AnyAsync(l => l.Codigo == codigo, ct))
-            throw new ExcepcionNegocio($"Ya existe un local con el código '{codigo}'.");
-
-        var local = new Local { Codigo = codigo };
+        var local = new Local();
         await Aplicar(local, datos, ct);
+        // El código se genera al final, ya validados los datos, para no consumir números en solicitudes inválidas.
+        local.Codigo = await GeneradorCodigo.SiguienteAsync(secuencias, "tabLOCALES", "LOC",
+            codigo => repositorio.ConsultarTodos().AnyAsync(l => l.Codigo == codigo, ct), ct);
         await repositorio.AgregarAsync(local, ct);
         await unidad.GuardarAsync(ct);
         return await ObtenerAsync(local.Id, ct);

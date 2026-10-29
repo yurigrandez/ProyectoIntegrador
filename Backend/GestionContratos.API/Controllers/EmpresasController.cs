@@ -23,7 +23,7 @@ public class EmpresasController(IEmpresasServicio servicio) : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = Roles.Administrador)]
-    public async Task<ActionResult<EmpresaDto>> Crear(EmpresaCrearDto datos, CancellationToken ct)
+    public async Task<ActionResult<EmpresaDto>> Crear(EmpresaGuardarDto datos, CancellationToken ct)
     {
         var creada = await servicio.CrearAsync(datos, ct);
         return CreatedAtAction(nameof(Obtener), new { id = creada.Id }, creada);

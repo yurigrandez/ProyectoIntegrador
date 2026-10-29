@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { aParametros } from './api.utils';
-import { Local, LocalCrear, LocalGuardar, Paginado } from './modelos';
+import { Local, LocalGuardar, Paginado } from './modelos';
 
 export interface FiltroLocales {
   texto?: string;
@@ -23,7 +23,7 @@ export class LocalesApi {
   obtener(id: number): Observable<Local> {
     return this.http.get<Local>(`/api/locales/${id}`);
   }
-  crear(datos: LocalCrear): Observable<Local> {
+  crear(datos: LocalGuardar): Observable<Local> {
     return this.http.post<Local>('/api/locales', datos);
   }
   actualizar(id: number, datos: LocalGuardar): Observable<Local> {

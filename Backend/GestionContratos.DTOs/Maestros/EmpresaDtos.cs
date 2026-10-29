@@ -19,7 +19,7 @@ public class EmpresaDto
     public DateTime? FechaCreacion { get; set; }
 }
 
-/// <summary>Datos editables de una empresa (el logo se gestionará aparte).</summary>
+/// <summary>Datos editables de una empresa (el logo se gestionará aparte). El código lo genera el sistema al crearla.</summary>
 public class EmpresaGuardarDto
 {
     [Required, StringLength(100)]
@@ -48,12 +48,6 @@ public class EmpresaGuardarDto
 
     [StringLength(15)]
     public string? MovilContacto { get; set; }
-}
-
-public class EmpresaCrearDto : EmpresaGuardarDto
-{
-    [Required, StringLength(15)]
-    public string Codigo { get; set; } = string.Empty;
 }
 
 public class EmpresaFiltro : ConsultaPaginada;

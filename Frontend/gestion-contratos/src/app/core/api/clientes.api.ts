@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { aParametros } from './api.utils';
-import { Cliente, ClienteCrear, ClienteGuardar, Paginado } from './modelos';
+import { Cliente, ClienteGuardar, Paginado } from './modelos';
 
 export interface FiltroClientes {
   texto?: string;
@@ -21,7 +21,7 @@ export class ClientesApi {
   obtener(id: number): Observable<Cliente> {
     return this.http.get<Cliente>(`/api/clientes/${id}`);
   }
-  crear(datos: ClienteCrear): Observable<Cliente> {
+  crear(datos: ClienteGuardar): Observable<Cliente> {
     return this.http.post<Cliente>('/api/clientes', datos);
   }
   actualizar(id: number, datos: ClienteGuardar): Observable<Cliente> {

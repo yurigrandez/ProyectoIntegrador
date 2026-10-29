@@ -59,10 +59,6 @@ export interface ClienteGuardar {
   idTipoComprobante: number | null;
 }
 
-export interface ClienteCrear extends ClienteGuardar {
-  codigo: string;
-}
-
 export interface Empresa {
   id: number;
   codigo: string;
@@ -88,10 +84,6 @@ export interface EmpresaGuardar {
   correoContacto: string | null;
   tlfContacto: string | null;
   movilContacto: string | null;
-}
-
-export interface EmpresaCrear extends EmpresaGuardar {
-  codigo: string;
 }
 
 export interface Local {
@@ -121,10 +113,6 @@ export interface LocalGuardar {
   dimensiones: string | null;
   nroPisos: number | null;
   idEstado: number | null;
-}
-
-export interface LocalCrear extends LocalGuardar {
-  codigo: string;
 }
 
 // ---------- contratos ----------

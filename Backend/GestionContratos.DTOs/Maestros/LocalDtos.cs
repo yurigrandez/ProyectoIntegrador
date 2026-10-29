@@ -53,12 +53,6 @@ public class LocalGuardarDto
     public int? IdEstado { get; set; }
 }
 
-public class LocalCrearDto : LocalGuardarDto
-{
-    [Required, StringLength(15)]
-    public string Codigo { get; set; } = string.Empty;
-}
-
 public class LocalFiltro : ConsultaPaginada
 {
     public int? IdEmpresa { get; set; }

@@ -8,7 +8,7 @@ namespace GestionContratos.Pruebas.Integracion;
 
 public class ClientesApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), IClassFixture<ApiFactory>
 {
-    private async Task<ClienteDto> CrearOk(ClienteCrearDto datos)
+    private async Task<ClienteDto> CrearOk(ClienteGuardarDto datos)
     {
         var respuesta = await Operador.PostAsJsonAsync("/api/clientes", datos);
         Assert.Equal(HttpStatusCode.Created, respuesta.StatusCode);
@@ -33,7 +33,7 @@ public class ClientesApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), ICl
         Assert.Equal(HttpStatusCode.Created, respuesta.StatusCode);
         Assert.NotNull(respuesta.Headers.Location);
         var cliente = await respuesta.Content.ReadFromJsonAsync<ClienteDto>();
-        Assert.Equal(datos.Codigo, cliente!.Codigo);
+        Assert.Matches(@"^CLI-\d{4}$", cliente!.Codigo);
         Assert.Equal("DNI", cliente.TipoDocumento);
         Assert.NotNull(cliente.FechaCreacion);
 
@@ -42,16 +42,55 @@ public class ClientesApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), ICl
     }
 
     [Fact]
-    public async Task Crear_CodigoDuplicado_Devuelve400()
+    public async Task Crear_AsignaCodigoAutomaticoConFormato()
     {
-        var primero = NuevoCliente();
-        await CrearOk(primero);
-        var repetido = NuevoCliente();
-        repetido.Codigo = primero.Codigo;
+        var creado = await CrearOk(NuevoCliente());
 
-        var respuesta = await Operador.PostAsJsonAsync("/api/clientes", repetido);
+        Assert.Matches(@"^CLI-\d{4}$", creado.Codigo);
+    }
 
-        Assert.Equal(HttpStatusCode.BadRequest, respuesta.StatusCode);
+    [Fact]
+    public async Task Crear_DosClientes_RecibenCodigosDistintosYCrecientes()
+    {
+        var primero = await CrearOk(NuevoCliente());
+        var segundo = await CrearOk(NuevoCliente());
+
+        Assert.NotEqual(primero.Codigo, segundo.Codigo);
+        Assert.True(string.CompareOrdinal(segundo.Codigo, primero.Codigo) > 0);
+    }
+
+    [Fact]
+    public async Task Crear_IgnoraElCodigoEnviadoPorElCliente()
+    {
+        var datos = NuevoCliente();
+
+        var respuesta = await Operador.PostAsJsonAsync("/api/clientes", new
+        {
+            codigo = "MANUAL",
+            datos.Nombre,
+            datos.Paterno,
+            datos.IdTipoDocumento,
+            datos.NumeroDocumento
+        });
+
+        Assert.Equal(HttpStatusCode.Created, respuesta.StatusCode);
+        var creado = await respuesta.Content.ReadFromJsonAsync<ClienteDto>();
+        Assert.Matches(@"^CLI-\d{4}$", creado!.Codigo);
+    }
+
+    [Fact]
+    public async Task Crear_ConDatosInvalidos_NoConsumeNumeroDeLaSecuencia()
+    {
+        var invalido = NuevoCliente();
+        invalido.Nombre = "";
+        var antes = await CrearOk(NuevoCliente());
+
+        var rechazo = await Operador.PostAsJsonAsync("/api/clientes", invalido);
+        var despues = await CrearOk(NuevoCliente());
+
+        Assert.Equal(HttpStatusCode.BadRequest, rechazo.StatusCode);
+        // Otras clases de pruebas pueden crear clientes en paralelo, por eso solo se exige que el orden se mantenga.
+        Assert.True(string.CompareOrdinal(despues.Codigo, antes.Codigo) > 0);
     }
 
     [Fact]
@@ -207,20 +246,6 @@ public class ClientesApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), ICl
         Assert.Equal(HttpStatusCode.NotFound, (await Admin.GetAsync($"/api/clientes/{creado.Id}")).StatusCode);
         var lista = await Admin.GetFromJsonAsync<PaginadoDto<ClienteDto>>($"/api/clientes?texto={creado.Codigo}");
         Assert.Empty(lista!.Items);
-    }
-
-    [Fact]
-    public async Task Crear_ConCodigoDeClienteDadoDeBaja_Devuelve400EnVezDeError500()
-    {
-        var original = NuevoCliente();
-        var creado = await CrearOk(original);
-        await Admin.DeleteAsync($"/api/clientes/{creado.Id}");
-        var reutiliza = NuevoCliente();
-        reutiliza.Codigo = original.Codigo;
-
-        var respuesta = await Operador.PostAsJsonAsync("/api/clientes", reutiliza);
-
-        Assert.Equal(HttpStatusCode.BadRequest, respuesta.StatusCode);
     }
 
     [Fact]

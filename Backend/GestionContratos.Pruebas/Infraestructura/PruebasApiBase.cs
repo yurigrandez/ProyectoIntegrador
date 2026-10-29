@@ -10,15 +10,14 @@ namespace GestionContratos.Pruebas.Infraestructura;
 
 /// <summary>
 /// Base de las pruebas de integración de la API: clientes HTTP autenticados como ADMIN y OPERADOR,
-/// ids de catálogo y limpieza de los datos creados. Los datos de las pruebas llevan un prefijo propio
-/// en el código, así varias clases pueden correr en paralelo sin pisarse.
+/// ids de catálogo y limpieza de los datos creados. Cada clase anota los ids que crea (los códigos los genera
+/// el sistema), así varias clases pueden correr en paralelo sin pisarse.
 /// </summary>
 public abstract class PruebasApiBase(ApiFactory fabrica) : IClassFixture<ApiFactory>, IAsyncLifetime
 {
     protected const string ClaveDemo = "Demo123*";
 
-    /// <summary>Prefijo de los códigos creados por esta clase de pruebas (máx. 7 caracteres).</summary>
-    protected string Prefijo { get; } = "ZT" + Guid.NewGuid().ToString("N")[..5];
+    private readonly RegistroCreados _creados = new();
 
     protected HttpClient Anonimo { get; private set; } = null!;
     protected HttpClient Admin { get; private set; } = null!;
@@ -34,8 +33,6 @@ public abstract class PruebasApiBase(ApiFactory fabrica) : IClassFixture<ApiFact
 
     /// <summary>Empresa de demostración (EMP001), que ya tiene locales y contratos.</summary>
     protected int IdEmpresaDemo { get; private set; }
-
-    private int _contador;
 
     public async Task InitializeAsync()
     {
@@ -55,18 +52,14 @@ public abstract class PruebasApiBase(ApiFactory fabrica) : IClassFixture<ApiFact
         IdEmpresaDemo = empresas!.Items.Single(e => e.Codigo == "EMP001").Id;
     }
 
-    public Task DisposeAsync() => fabrica.LimpiarAsync(Prefijo);
-
-    /// <summary>Código único para un dato de prueba, con el prefijo de la clase.</summary>
-    protected string NuevoCodigo(string tipo) => $"{Prefijo}{tipo}{Interlocked.Increment(ref _contador)}";
+    public Task DisposeAsync() => fabrica.LimpiarAsync(_creados);
 
     protected static string NuevoDni() => Random.Shared.Next(10_000_000, 99_999_999).ToString();
 
     protected static string NuevoRuc() => "20" + Random.Shared.NextInt64(100_000_000, 999_999_999);
 
-    protected ClienteCrearDto NuevoCliente(string? nombre = null) => new()
+    protected ClienteGuardarDto NuevoCliente(string? nombre = null) => new()
     {
-        Codigo = NuevoCodigo("C"),
         Nombre = nombre ?? "Cliente de prueba",
         Paterno = "Apellido",
         IdTipoDocumento = IdDni,
@@ -74,16 +67,14 @@ public abstract class PruebasApiBase(ApiFactory fabrica) : IClassFixture<ApiFact
         Correo = "prueba@correo.pe"
     };
 
-    protected EmpresaCrearDto NuevaEmpresa() => new()
+    protected EmpresaGuardarDto NuevaEmpresa() => new()
     {
-        Codigo = NuevoCodigo("E"),
         Nombre = "Empresa de prueba S.A.C.",
         Ruc = NuevoRuc()
     };
 
-    protected LocalCrearDto NuevoLocal(int? idEmpresa = null) => new()
+    protected LocalGuardarDto NuevoLocal(int? idEmpresa = null) => new()
     {
-        Codigo = NuevoCodigo("L"),
         IdEmpresa = idEmpresa ?? IdEmpresaDemo,
         IdTipoLocal = IdTipoLocal,
         Direccion = "Calle de prueba 123",
@@ -139,7 +130,9 @@ public abstract class PruebasApiBase(ApiFactory fabrica) : IClassFixture<ApiFact
 
     private async Task<HttpClient> Autenticar(string codigo)
     {
-        var cliente = fabrica.CreateClient();
+        // Cliente propio sobre el servidor de pruebas: CreateDefaultClient no admite handlers una vez iniciada la fábrica.
+        var manejador = new RegistrarCreadosHandler(_creados) { InnerHandler = fabrica.Server.CreateHandler() };
+        var cliente = new HttpClient(manejador) { BaseAddress = fabrica.Server.BaseAddress };
         var respuesta = await cliente.PostAsJsonAsync("/api/auth/login", new LoginSolicitud { Codigo = codigo, Clave = ClaveDemo });
         respuesta.EnsureSuccessStatusCode();
         var login = await respuesta.Content.ReadFromJsonAsync<LoginRespuesta>();

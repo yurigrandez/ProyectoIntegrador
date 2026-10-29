@@ -23,7 +23,7 @@ public class LocalesController(ILocalesServicio servicio) : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = Roles.Administrador)]
-    public async Task<ActionResult<LocalDto>> Crear(LocalCrearDto datos, CancellationToken ct)
+    public async Task<ActionResult<LocalDto>> Crear(LocalGuardarDto datos, CancellationToken ct)
     {
         var creado = await servicio.CrearAsync(datos, ct);
         return CreatedAtAction(nameof(Obtener), new { id = creado.Id }, creado);

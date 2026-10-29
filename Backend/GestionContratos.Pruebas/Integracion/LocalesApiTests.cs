@@ -8,7 +8,7 @@ namespace GestionContratos.Pruebas.Integracion;
 
 public class LocalesApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), IClassFixture<ApiFactory>
 {
-    private async Task<LocalDto> CrearOk(LocalCrearDto datos)
+    private async Task<LocalDto> CrearOk(LocalGuardarDto datos)
     {
         var respuesta = await Admin.PostAsJsonAsync("/api/locales", datos);
         Assert.Equal(HttpStatusCode.Created, respuesta.StatusCode);
@@ -75,14 +75,40 @@ public class LocalesApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), ICla
     }
 
     [Fact]
-    public async Task Crear_CodigoDuplicado_Devuelve400()
+    public async Task Crear_AsignaCodigoAutomaticoConFormato()
+    {
+        var creado = await CrearOk(NuevoLocal());
+
+        Assert.Matches(@"^LOC-\d{4}$", creado.Codigo);
+    }
+
+    [Fact]
+    public async Task Crear_DosLocales_RecibenCodigosDistintosYCrecientes()
+    {
+        var primero = await CrearOk(NuevoLocal());
+        var segundo = await CrearOk(NuevoLocal());
+
+        Assert.NotEqual(primero.Codigo, segundo.Codigo);
+        Assert.True(string.CompareOrdinal(segundo.Codigo, primero.Codigo) > 0);
+    }
+
+    [Fact]
+    public async Task Crear_IgnoraElCodigoEnviadoPorElCliente()
     {
         var datos = NuevoLocal();
-        await CrearOk(datos);
 
-        var respuesta = await Admin.PostAsJsonAsync("/api/locales", datos);
+        var respuesta = await Admin.PostAsJsonAsync("/api/locales", new
+        {
+            codigo = "MANUAL",
+            datos.IdEmpresa,
+            datos.IdTipoLocal,
+            datos.Direccion,
+            datos.TotalM2
+        });
 
-        Assert.Equal(HttpStatusCode.BadRequest, respuesta.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, respuesta.StatusCode);
+        var creado = await respuesta.Content.ReadFromJsonAsync<LocalDto>();
+        Assert.Matches(@"^LOC-\d{4}$", creado!.Codigo);
     }
 
     [Theory]

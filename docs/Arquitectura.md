@@ -118,6 +118,7 @@ Facturación electrónica (implementada en `Integraciones`), adendas, garantías
 ## 6. Reglas de contratos implementadas (fase 4)
 
 - **Código:** `CON-AAAA-NNNN`, generado de forma atómica desde `tabSECUENCIA` (una secuencia por año). Un número consumido por una operación fallida no se reutiliza, por lo que puede haber saltos.
+- **Códigos de maestros:** empresas, locales y clientes reciben un código automático al guardar (`EMP-NNNN`, `LOC-NNNN`, `CLI-NNNN`) desde `tabSECUENCIA`, con una sola serie por tabla (sin reinicio anual). El formulario lo muestra sin permitir editarlo, también al editar el registro; si la API recibe un código, lo ignora.
 - **Ciclo de vida:** `BOR` (borrador, editable y eliminable) → `VIG` (autorizado) → `VEN` (plazo terminado) o `RES` (rescindido).
 - **Solapamiento:** un local no puede tener dos contratos (borrador o vigente) con fechas que se crucen; al autorizar se vuelve a verificar contra los vigentes.
 - **Autorización:** solo un administrador, distinto del usuario que registró el contrato. Un contrato con plazo ya terminado no se puede autorizar. Al autorizar se genera el cronograma, se registra un evento en `tabEVENTOS` y, si el contrato ya inició, el local pasa a ocupado.

@@ -13,13 +13,13 @@ public interface IClientesServicio
 {
     Task<PaginadoDto<ClienteDto>> ListarAsync(ClienteFiltro filtro, CancellationToken ct = default);
     Task<ClienteDto> ObtenerAsync(int id, CancellationToken ct = default);
-    Task<ClienteDto> CrearAsync(ClienteCrearDto datos, CancellationToken ct = default);
+    Task<ClienteDto> CrearAsync(ClienteGuardarDto datos, CancellationToken ct = default);
     Task<ClienteDto> ActualizarAsync(int id, ClienteGuardarDto datos, CancellationToken ct = default);
     /// <summary>Baja lógica. No se permite si el cliente tiene contratos borrador o vigentes.</summary>
     Task DesactivarAsync(int id, CancellationToken ct = default);
 }
 
-public class ClientesServicio(IUnidadTrabajo unidad) : IClientesServicio
+public class ClientesServicio(IUnidadTrabajo unidad, ISecuenciaGenerador secuencias) : IClientesServicio
 {
     private static readonly Expression<Func<Cliente, ClienteDto>> Proyeccion = c => new ClienteDto
     {
@@ -61,17 +61,15 @@ public class ClientesServicio(IUnidadTrabajo unidad) : IClientesServicio
         await unidad.Repositorio<Cliente>().Consultar().Where(c => c.Id == id).Select(Proyeccion).FirstOrDefaultAsync(ct)
         ?? throw new ExcepcionNoEncontrado($"No existe el cliente con id {id}.");
 
-    public async Task<ClienteDto> CrearAsync(ClienteCrearDto datos, CancellationToken ct = default)
+    public async Task<ClienteDto> CrearAsync(ClienteGuardarDto datos, CancellationToken ct = default)
     {
         var repositorio = unidad.Repositorio<Cliente>();
-        var codigo = datos.Codigo.Trim();
-
-        // Se incluyen los dados de baja porque la restricción única de la BD también los cuenta.
-        if (await repositorio.ConsultarTodos().AnyAsync(c => c.Codigo == codigo, ct))
-            throw new ExcepcionNegocio($"Ya existe un cliente con el código '{codigo}'.");
-
-        var cliente = new Cliente { Codigo = codigo };
+        var cliente = new Cliente();
         await Aplicar(cliente, datos, ct);
+        // El código se genera al final, ya validados los datos, para no consumir números en solicitudes inválidas.
+        // Se incluyen los dados de baja porque la restricción única de la BD también los cuenta.
+        cliente.Codigo = await GeneradorCodigo.SiguienteAsync(secuencias, "tabCLIENTES", "CLI",
+            codigo => repositorio.ConsultarTodos().AnyAsync(c => c.Codigo == codigo, ct), ct);
         await repositorio.AgregarAsync(cliente, ct);
         await unidad.GuardarAsync(ct);
         return await ObtenerAsync(cliente.Id, ct);
