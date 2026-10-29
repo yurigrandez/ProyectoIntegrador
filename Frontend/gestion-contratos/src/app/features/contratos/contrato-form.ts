@@ -8,6 +8,7 @@ import { ClientesApi } from '../../core/api/clientes.api';
 import { ContratosApi } from '../../core/api/contratos.api';
 import { LocalesApi } from '../../core/api/locales.api';
 import { Cliente, Contrato, Local } from '../../core/api/modelos';
+import { ConCambios } from '../../core/ui/salir-sin-guardar.guard';
 import { ToastService } from '../../core/ui/toast.service';
 import { Campo } from '../../shared/campo/campo';
 import { contarCuotas, finDeContrato, mesesExactos } from '../../shared/fechas';
@@ -147,7 +148,7 @@ const numero = (valor: number | null): number => valor ?? 0;
     @media (max-width: 1000px) { .contenido { grid-template-columns: 1fr; } .resumen { position: static; order: -1; } }
   `
 })
-export class ContratoForm implements OnInit {
+export class ContratoForm implements OnInit, ConCambios {
   private readonly api = inject(ContratosApi);
   private readonly clientesApi = inject(ClientesApi);
   private readonly localesApi = inject(LocalesApi);
@@ -156,6 +157,7 @@ export class ContratoForm implements OnInit {
 
   /** Viene de la ruta (contratos/:id/editar); sin él, es un contrato nuevo. */
   readonly id = input<string>();
+  private guardado = false;
 
   protected readonly duraciones = DURACIONES;
   protected readonly dinero = formatoDinero;
@@ -255,6 +257,11 @@ export class ContratoForm implements OnInit {
     this.formulario.controls.fechaFin.markAsDirty();
   }
 
+  /** Hay datos escritos que todavía no se guardaron (lo consulta la guarda de salida). */
+  hayCambiosSinGuardar(): boolean {
+    return this.formulario.dirty && !this.guardado;
+  }
+
   protected guardar(): void {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
@@ -283,6 +290,7 @@ export class ContratoForm implements OnInit {
     peticion.subscribe({
       next: (contrato) => {
         this.toast.ok(id ? 'Cambios guardados.' : `Contrato ${contrato.codigo} guardado como borrador. Falta que un administrador lo autorice.`);
+        this.guardado = true; // ya se guardó: salir de la pantalla no debe preguntar
         void this.router.navigate(['/contratos', contrato.id]);
       },
       error: (e: unknown) => {

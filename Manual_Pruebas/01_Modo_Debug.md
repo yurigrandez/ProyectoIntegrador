@@ -134,7 +134,7 @@ cd ..\Frontend\gestion-contratos
 npm test -- --watch=false
 ```
 
-**Resultado esperado:** `Test Files 14 passed` y `Tests 154 passed`.
+**Resultado esperado:** `Test Files 16 passed` y `Tests 181 passed`.
 
 > Las pruebas crean datos y los borran al terminar. Nunca se ejecutan contra una base cuyo nombre no termine en `_TEST`.
 

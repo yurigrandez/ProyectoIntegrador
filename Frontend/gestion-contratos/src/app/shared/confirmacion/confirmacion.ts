@@ -12,7 +12,7 @@ import { Modal } from '../modal/modal';
       <gc-modal [titulo]="pedido.titulo" (cerrar)="servicio.responder(false)">
         <p>{{ pedido.mensaje }}</p>
         <ng-container pie>
-          <button type="button" class="btn btn-secundario" (click)="servicio.responder(false)">Cancelar</button>
+          <button type="button" class="btn btn-secundario" (click)="servicio.responder(false)">{{ pedido.textoCancelar ?? 'Cancelar' }}</button>
           <button type="button" class="btn" [class.btn-peligro]="pedido.peligro" [class.btn-primario]="!pedido.peligro"
                   (click)="servicio.responder(true)">{{ pedido.textoConfirmar ?? 'Confirmar' }}</button>
         </ng-container>
