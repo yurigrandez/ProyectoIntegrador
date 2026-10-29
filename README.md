@@ -61,7 +61,7 @@ Frontend (Node.js 20.19 o superior), con la API corriendo en el perfil `http`:
 
 ```bash
 npm install && npm start                      # http://localhost:4200
-npm test                                      # 164 pruebas con Vitest
+npm test                                      # 181 pruebas con Vitest
 ```
 
 Usuarios de demostración: `ADMIN` y `OPERADOR`, clave `Demo123*`.

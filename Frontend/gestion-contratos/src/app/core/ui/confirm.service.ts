@@ -4,6 +4,8 @@ export interface OpcionesConfirmacion {
   titulo: string;
   mensaje: string;
   textoConfirmar?: string;
+  /** Texto del botón que no confirma (por defecto «Cancelar»). */
+  textoCancelar?: string;
   /** Si es una acción que no se puede deshacer, el botón se muestra en rojo. */
   peligro?: boolean;
 }

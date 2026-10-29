@@ -6,6 +6,7 @@ import { CatalogosApi } from '../../core/api/catalogos.api';
 import { EmpresasApi } from '../../core/api/empresas.api';
 import { LocalesApi } from '../../core/api/locales.api';
 import { CatalogoItem, Empresa } from '../../core/api/modelos';
+import { ConCambios } from '../../core/ui/salir-sin-guardar.guard';
 import { ToastService } from '../../core/ui/toast.service';
 import { Campo } from '../../shared/campo/campo';
 import { Icono } from '../../shared/icono/icono';
@@ -90,7 +91,7 @@ const vacioANulo = (valor: string | null): string | null => valor?.trim() || nul
     </div>
   `
 })
-export class LocalForm implements OnInit {
+export class LocalForm implements OnInit, ConCambios {
   private readonly api = inject(LocalesApi);
   private readonly empresasApi = inject(EmpresasApi);
   private readonly catalogos = inject(CatalogosApi);
@@ -98,6 +99,7 @@ export class LocalForm implements OnInit {
   private readonly toast = inject(ToastService);
 
   readonly id = input<string>();
+  private guardado = false;
 
   protected readonly empresas = signal<Empresa[]>([]);
   protected readonly tipos = signal<CatalogoItem[]>([]);
@@ -157,6 +159,11 @@ export class LocalForm implements OnInit {
     });
   }
 
+  /** Hay datos escritos que todavía no se guardaron (lo consulta la guarda de salida). */
+  hayCambiosSinGuardar(): boolean {
+    return this.formulario.dirty && !this.guardado;
+  }
+
   protected guardar(): void {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
@@ -183,6 +190,7 @@ export class LocalForm implements OnInit {
     peticion.subscribe({
       next: (local) => {
         this.toast.ok(id ? 'Cambios guardados.' : `Local ${local.codigo} registrado.`);
+        this.guardado = true; // ya se guardó: salir de la pantalla no debe preguntar
         void this.router.navigate(['/locales']);
       },
       error: (e: unknown) => {

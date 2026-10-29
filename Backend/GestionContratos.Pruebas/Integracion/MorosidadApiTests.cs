@@ -122,7 +122,8 @@ public class MorosidadApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), IC
     public async Task ContratoAlDia_NoApareceComoMoroso()
     {
         var (cliente, local) = await CrearClienteYLocal();
-        await CrearContratoVigente(NuevoContrato(cliente, local, inicio: PrimerDiaDelMes(), diaPago: 28));
+        // La primera cuota vence hoy (no es mora hasta mañana) y las demás son futuras, sea cual sea el día del mes en que se ejecute.
+        await CrearContratoVigente(NuevoContrato(cliente, local, inicio: DateTime.Today, diaPago: DateTime.Today.Day));
 
         Assert.Null(await BuscarMoroso(cliente));
     }

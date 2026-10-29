@@ -164,4 +164,23 @@ describe('ContratoForm', () => {
     expect(texto(html.querySelector('.caja.aviso'))).toContain('ya no se puede editar');
     expect(html.querySelector('form')).toBeNull();
   });
+
+  it('marca cambios sin guardar al escribir y deja de marcarlos cuando el contrato se guarda', async () => {
+    const { fixture, control, navegar, escribir, enviar } = await abrir();
+    const pantalla = fixture.componentInstance;
+    expect(pantalla.hayCambiosSinGuardar()).toBe(false);
+
+    fixture.componentInstance['formulario'].patchValue({ idCliente: 3, idLocal: 6 });
+    escribir('inicio', '2026-10-01');
+    escribir('fin', '2027-09-30');
+    escribir('alquiler', '1500');
+    fixture.detectChanges();
+    expect(pantalla.hayCambiosSinGuardar()).toBe(true);
+
+    await enviar();
+    control.expectOne({ method: 'POST', url: '/api/contratos' }).flush({ id: 14, codigo: 'CON-2026-0012' });
+
+    expect(navegar).toHaveBeenCalledWith(['/contratos', 14]);
+    expect(pantalla.hayCambiosSinGuardar()).toBe(false);
+  });
 });

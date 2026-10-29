@@ -7,6 +7,7 @@ import { mensajeDeError } from '../../core/api/api.utils';
 import { CatalogosApi } from '../../core/api/catalogos.api';
 import { ClientesApi } from '../../core/api/clientes.api';
 import { CatalogoItem } from '../../core/api/modelos';
+import { ConCambios } from '../../core/ui/salir-sin-guardar.guard';
 import { ToastService } from '../../core/ui/toast.service';
 import { Campo } from '../../shared/campo/campo';
 import { Icono } from '../../shared/icono/icono';
@@ -97,7 +98,7 @@ const vacioANulo = (valor: string): string | null => valor.trim() || null;
     </div>
   `
 })
-export class ClienteForm implements OnInit {
+export class ClienteForm implements OnInit, ConCambios {
   private readonly api = inject(ClientesApi);
   private readonly catalogos = inject(CatalogosApi);
   private readonly router = inject(Router);
@@ -105,6 +106,7 @@ export class ClienteForm implements OnInit {
 
   /** Viene de la ruta (clientes/:id/editar); sin él, es un cliente nuevo. */
   readonly id = input<string>();
+  private guardado = false;
 
   protected readonly tiposDocumento = signal<CatalogoItem[]>([]);
   protected readonly tiposComprobante = signal<CatalogoItem[]>([]);
@@ -172,6 +174,11 @@ export class ClienteForm implements OnInit {
     }
   }
 
+  /** Hay datos escritos que todavía no se guardaron (lo consulta la guarda de salida). */
+  hayCambiosSinGuardar(): boolean {
+    return this.formulario.dirty && !this.guardado;
+  }
+
   protected guardar(): void {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
@@ -198,6 +205,7 @@ export class ClienteForm implements OnInit {
     peticion.subscribe({
       next: (cliente) => {
         this.toast.ok(id ? 'Cambios guardados.' : `Cliente ${cliente.codigo} registrado.`);
+        this.guardado = true; // ya se guardó: salir de la pantalla no debe preguntar
         void this.router.navigate(['/clientes']);
       },
       error: (e: unknown) => {

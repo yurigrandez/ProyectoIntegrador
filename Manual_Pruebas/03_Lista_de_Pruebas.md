@@ -34,17 +34,21 @@ Entre con **OPERADOR**.
 | B1 | Mirar el menú | Ve Panel, Contratos, Pagos, Deudas, Clientes, Locales y Empresas | [ ] |
 | B2 | Abrir **Empresas** y **Locales** | Aviso «Solo consulta»; **no** hay botones *Nueva*, *Editar* ni eliminar | [ ] |
 | B3 | Escribir en la barra de direcciones `…/empresas/nueva` | Mensaje «Esa pantalla es solo para administradores» y vuelve al Panel | [ ] |
-| B4 | **Clientes → Nuevo cliente**: código `CLI-900`, tipo **DNI**, número `12345678`, nombre y apellido; **Guardar** | Mensaje «Cliente CLI-900 registrado» y aparece en la lista | [ ] |
+| B4 | **Clientes → Nuevo cliente**: ver que el **Código** está vacío y no se puede escribir («Se genera al guardar»); tipo **DNI**, número `12345678`, nombre y apellido; **Guardar** | Mensaje «Cliente CLI-… registrado» con el código que asignó el sistema (anótelo: se usa en B10 y B12); aparece en la lista | [ ] |
 | B5 | Repetir con DNI de **7 dígitos** | Error «El DNI debe tener 8 dígitos» bajo el campo; no se guarda | [ ] |
-| B6 | Repetir con el **mismo código** `CLI-900` | Mensaje del servidor «Ya existe un cliente con el código…» (cuadro rojo) | [ ] |
-| B7 | Repetir con el **mismo DNI** y otro código | Mensaje «Ya existe un cliente con DNI 12345678» | [ ] |
+| B6 | Abrir **Editar** del cliente creado en B4 | El **Código** se muestra con su valor (CLI-…) y la caja no se puede editar | [ ] |
+| B7 | Repetir con el **mismo DNI** | Mensaje «Ya existe un cliente con DNI 12345678» | [ ] |
 | B8 | Escribir un correo inválido (`abc`) | «Escriba un correo válido…» | [ ] |
 | B9 | Tipo de documento **RUC** | El campo «Nombres» cambia a «Razón social» y desaparecen los apellidos; pide 11 dígitos | [ ] |
-| B10 | En la lista de clientes buscar «900» | Se filtra tras una breve pausa y muestra solo CLI-900 | [ ] |
+| B10 | En la lista de clientes buscar el número del código asignado en B4 (por ejemplo «0001» si fue CLI-0001) | Se filtra tras una breve pausa y muestra ese cliente | [ ] |
 | B11 | Mirar la lista de clientes | **No** hay botón de eliminar (solo lo ve un administrador) | [ ] |
-| B12 | **Contratos → Nuevo contrato**: cliente CLI-900, un local **disponible** (por ejemplo LOC-006), inicio el día 1 de este mes, duración 12 meses, día de pago 5, alquiler 1500, mantenimiento 100 | El resumen muestra **S/ 1,600.00** al mes, **12 meses** y **S/ 19,200.00**; la fecha de fin se calcula sola | [ ] |
+| B12 | **Contratos → Nuevo contrato**: el cliente creado en B4, un local **disponible** (por ejemplo LOC-006), inicio el día 1 de este mes, duración 12 meses, día de pago 5, alquiler 1500, mantenimiento 100 | El resumen muestra **S/ 1,600.00** al mes, **12 meses** y **S/ 19,200.00**; la fecha de fin se calcula sola | [ ] |
 | B13 | **Guardar** el contrato | Aviso «Contrato CON-… guardado como borrador»; en el detalle estado **Borrador** y mensaje «Avise a un administrador»; **no** hay botón *Autorizar* | [ ] |
 | B14 | Abrir el selector de local al crear otro contrato | El local en **mantenimiento** (LOC-012) aparece desactivado | [ ] |
+| B15 | **Clientes → Nuevo cliente**: escribir un nombre y, sin guardar, pulsar otra opción del menú (por ejemplo **Contratos**) | Aparece la ventana «Salir sin guardar» que pregunta si desea salir sin guardar los cambios, con los botones **Sí** y **No** | [ ] |
+| B16 | En esa ventana pulsar **No** (o la **X**) | La ventana se cierra y se queda en el formulario con lo que escribió | [ ] |
+| B17 | Volver a pulsar otra opción del menú y elegir **Sí** | Va a la opción elegida y el cliente no se guarda | [ ] |
+| B18 | **Clientes → Editar** un cliente, no cambiar nada y pulsar **Cancelar** | Sale sin preguntar nada | [ ] |
 
 ## C. Como ADMINISTRADOR
 
@@ -59,11 +63,12 @@ Entre con **ADMIN** (en la otra ventana).
 | C5 | Abrir un contrato en borrador y pulsar **Eliminar borrador** | Confirmación; al aceptar desaparece de la lista | [ ] |
 | C6 | Contrato **vigente** → **Rescindir**: fecha de hoy y un motivo | Estado **Rescindido**; las cuotas futuras sin pagos desaparecen; el local vuelve a **Disponible** | [ ] |
 | C7 | Rescindir con fecha **futura** | Error «no puede ser posterior a hoy» | [ ] |
-| C8 | **Locales → Nuevo local** con todos los datos | Se crea en estado *Disponible* | [ ] |
+| C8 | **Locales → Nuevo local** con todos los datos | Se crea con un código LOC-… asignado por el sistema y en estado *Disponible* | [ ] |
 | C9 | Editar un local **ocupado** | El estado no se puede cambiar y aparece el cuadro «Este local está ocupado» | [ ] |
 | C10 | Intentar eliminar un local con contrato vigente | Mensaje «No se puede desactivar un local con contratos borrador o vigentes» | [ ] |
 | C11 | Intentar eliminar la empresa de demostración | Mensaje «…tiene locales activos» | [ ] |
-| C12 | **Empresas → Nueva empresa** con RUC `123` | Error de formato del RUC; con 11 dígitos que empiecen con 20, se crea | [ ] |
+| C12 | **Empresas → Nueva empresa** con RUC `123` | Error de formato del RUC; con 11 dígitos que empiecen con 20, se crea con un código EMP-… asignado por el sistema | [ ] |
+| C13 | **Empresas**, **Locales** y **Contratos** (nuevo o editar): cambiar un dato y pulsar **Cancelar** u otra opción del menú | Aparece la misma ventana «Salir sin guardar» con **Sí** y **No**; después de **Guardar** correctamente ya no pregunta | [ ] |
 
 ## D. Pagos
 

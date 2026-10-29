@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { mensajeDeError } from '../../core/api/api.utils';
 import { EmpresasApi } from '../../core/api/empresas.api';
+import { ConCambios } from '../../core/ui/salir-sin-guardar.guard';
 import { ToastService } from '../../core/ui/toast.service';
 import { Campo } from '../../shared/campo/campo';
 import { Icono } from '../../shared/icono/icono';
@@ -79,12 +80,13 @@ const vacioANulo = (valor: string | null): string | null => valor?.trim() || nul
     </div>
   `
 })
-export class EmpresaForm implements OnInit {
+export class EmpresaForm implements OnInit, ConCambios {
   private readonly api = inject(EmpresasApi);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
 
   readonly id = input<string>();
+  private guardado = false;
 
   protected readonly cargando = signal(false);
   protected readonly guardando = signal(false);
@@ -131,6 +133,11 @@ export class EmpresaForm implements OnInit {
     });
   }
 
+  /** Hay datos escritos que todavía no se guardaron (lo consulta la guarda de salida). */
+  hayCambiosSinGuardar(): boolean {
+    return this.formulario.dirty && !this.guardado;
+  }
+
   protected guardar(): void {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
@@ -157,6 +164,7 @@ export class EmpresaForm implements OnInit {
     peticion.subscribe({
       next: (empresa) => {
         this.toast.ok(id ? 'Cambios guardados.' : `Empresa ${empresa.codigo} registrada.`);
+        this.guardado = true; // ya se guardó: salir de la pantalla no debe preguntar
         void this.router.navigate(['/empresas']);
       },
       error: (e: unknown) => {
