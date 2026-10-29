@@ -29,15 +29,21 @@ public class ApiFactory : WebApplicationFactory<Program>
     }
 
     /// <summary>
-    /// Borra definitivamente los datos que crearon las pruebas: todo lo que cuelga de clientes, locales y
-    /// empresas cuyo código empieza con el prefijo (pagos, cronogramas, eventos y contratos incluidos).
+    /// Borra definitivamente los datos que crearon las pruebas: todo lo que cuelga de los clientes, locales y
+    /// empresas indicados (pagos, cronogramas, eventos y contratos incluidos).
     /// </summary>
-    public async Task LimpiarAsync(string prefijo)
+    public async Task LimpiarAsync(RegistroCreados creados)
     {
-        const string contratosDePrueba = """
+        // Solo enteros generados por la API: se pueden poner directo en el SQL.
+        static string Ids(IEnumerable<int> ids) => ids.Any() ? string.Join(",", ids.Distinct()) : "-1";
+        var clientes = Ids(creados.Clientes);
+        var locales = Ids(creados.Locales);
+        var empresas = Ids(creados.Empresas);
+
+        var contratosDePrueba = $"""
             from tabCONTRATOS c
-            where c.IdCliente in (select Id from tabCLIENTES where Codigo like @prefijo)
-               or c.IdLocal in (select Id from tabLOCALES where Codigo like @prefijo)
+            where c.IdCliente in ({clientes})
+               or c.IdLocal in ({locales})
             """;
         var comandos = new[]
         {
@@ -45,12 +51,12 @@ public class ApiFactory : WebApplicationFactory<Program>
             $"delete from tabCRONOGRAMA_PAGOS where IdContrato in (select c.Id {contratosDePrueba})",
             $"delete e from tabEVENTOS e where e.Entidad in ('CONTRATO', 'PAGO') and exists (select 1 {contratosDePrueba} and e.Mensaje like '%' + c.Codigo + '%')",
             $"delete from tabCONTRATOS where Id in (select c.Id {contratosDePrueba})",
-            "delete from tabLOCALES where Codigo like @prefijo",
-            "delete from tabCLIENTES where Codigo like @prefijo",
-            "delete from tabEMPRESAS where Codigo like @prefijo"
+            $"delete from tabLOCALES where Id in ({locales})",
+            $"delete from tabCLIENTES where Id in ({clientes})",
+            $"delete from tabEMPRESAS where Id in ({empresas})"
         };
         foreach (var sql in comandos)
-            await EjecutarAsync(sql, ("@prefijo", prefijo + "%"));
+            await EjecutarAsync(sql);
     }
 
     /// <summary>Ejecuta una sentencia SQL directa sobre la BD de pruebas (para preparar o verificar datos).</summary>

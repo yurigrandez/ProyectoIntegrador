@@ -324,7 +324,7 @@ public class AnaliticasApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), I
         Assert.Equal([3, 2], clientes.Select(x => x.CantidadPagos));
         Assert.Equal([localA, localC], locales.Select(x => x.IdLocal));
         Assert.Equal([2500m, 1500m], locales.Select(x => x.TotalCobrado));
-        Assert.StartsWith(Prefijo, locales[0].CodigoLocal);
+        Assert.Matches(@"^LOC-\d{4}$", locales[0].CodigoLocal);
         // Sin el pago de hace dos meses, A baja a 2000 y el orden de los demás se mantiene.
         Assert.Equal([clienteA, clienteC, clienteB], clientesDelMes.Select(x => x.IdCliente));
         Assert.Equal([2000m, 1500m, 700m], clientesDelMes.Select(x => x.TotalCobrado));

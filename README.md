@@ -61,7 +61,7 @@ Frontend (Node.js 20.19 o superior), con la API corriendo en el perfil `http`:
 
 ```bash
 npm install && npm start                      # http://localhost:4200
-npm test                                      # 154 pruebas con Vitest
+npm test                                      # 164 pruebas con Vitest
 ```
 
 Usuarios de demostración: `ADMIN` y `OPERADOR`, clave `Demo123*`.
@@ -86,7 +86,7 @@ lo registró y al autorizarse se genera el cronograma mensual (la primera cuota 
 Cada pago se aplica a una cuota y no puede superar su saldo; la cuota pasa a *pago parcial* o *pagada* y la mora se calcula a la fecha de hoy.
 Los contratos vencidos y el estado de los locales se actualizan al iniciar la API y cada 6 horas.
 
-Reglas principales: códigos únicos, documento válido por tipo (DNI 8 dígitos, RUC 11), un cliente, local o empresa
+Reglas principales: los códigos de empresas, locales y clientes los genera el sistema al guardar (`EMP-NNNN`, `LOC-NNNN`, `CLI-NNNN`) y no se pueden editar, documento válido por tipo (DNI 8 dígitos, RUC 11), un cliente, local o empresa
 con contratos o locales activos no se puede desactivar, y el estado *Ocupado* de un local lo define el contrato vigente.
 
 ## Estado

@@ -13,13 +13,13 @@ public interface IEmpresasServicio
 {
     Task<PaginadoDto<EmpresaDto>> ListarAsync(EmpresaFiltro filtro, CancellationToken ct = default);
     Task<EmpresaDto> ObtenerAsync(int id, CancellationToken ct = default);
-    Task<EmpresaDto> CrearAsync(EmpresaCrearDto datos, CancellationToken ct = default);
+    Task<EmpresaDto> CrearAsync(EmpresaGuardarDto datos, CancellationToken ct = default);
     Task<EmpresaDto> ActualizarAsync(int id, EmpresaGuardarDto datos, CancellationToken ct = default);
     /// <summary>Baja lógica. No se permite si la empresa tiene locales activos.</summary>
     Task DesactivarAsync(int id, CancellationToken ct = default);
 }
 
-public class EmpresasServicio(IUnidadTrabajo unidad) : IEmpresasServicio
+public class EmpresasServicio(IUnidadTrabajo unidad, ISecuenciaGenerador secuencias) : IEmpresasServicio
 {
     private static readonly Expression<Func<Empresa, EmpresaDto>> Proyeccion = e => new EmpresaDto
     {
@@ -54,15 +54,14 @@ public class EmpresasServicio(IUnidadTrabajo unidad) : IEmpresasServicio
         await unidad.Repositorio<Empresa>().Consultar().Where(e => e.Id == id).Select(Proyeccion).FirstOrDefaultAsync(ct)
         ?? throw new ExcepcionNoEncontrado($"No existe la empresa con id {id}.");
 
-    public async Task<EmpresaDto> CrearAsync(EmpresaCrearDto datos, CancellationToken ct = default)
+    public async Task<EmpresaDto> CrearAsync(EmpresaGuardarDto datos, CancellationToken ct = default)
     {
         var repositorio = unidad.Repositorio<Empresa>();
-        var codigo = datos.Codigo.Trim();
-        if (await repositorio.ConsultarTodos().AnyAsync(e => e.Codigo == codigo, ct))
-            throw new ExcepcionNegocio($"Ya existe una empresa con el código '{codigo}'.");
-
-        var empresa = new Empresa { Codigo = codigo };
+        var empresa = new Empresa();
         await Aplicar(empresa, datos, ct);
+        // El código se genera al final, ya validados los datos, para no consumir números en solicitudes inválidas.
+        empresa.Codigo = await GeneradorCodigo.SiguienteAsync(secuencias, "tabEMPRESAS", "EMP",
+            codigo => repositorio.ConsultarTodos().AnyAsync(e => e.Codigo == codigo, ct), ct);
         await repositorio.AgregarAsync(empresa, ct);
         await unidad.GuardarAsync(ct);
         return await ObtenerAsync(empresa.Id, ct);

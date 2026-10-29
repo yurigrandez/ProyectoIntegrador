@@ -8,7 +8,7 @@ namespace GestionContratos.Pruebas.Integracion;
 
 public class EmpresasApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), IClassFixture<ApiFactory>
 {
-    private async Task<EmpresaDto> CrearOk(EmpresaCrearDto datos)
+    private async Task<EmpresaDto> CrearOk(EmpresaGuardarDto datos)
     {
         var respuesta = await Admin.PostAsJsonAsync("/api/empresas", datos);
         Assert.Equal(HttpStatusCode.Created, respuesta.StatusCode);
@@ -38,8 +38,42 @@ public class EmpresasApiTests(ApiFactory fabrica) : PruebasApiBase(fabrica), ICl
 
         var creada = await CrearOk(datos);
 
-        Assert.Equal(datos.Codigo, creada.Codigo);
+        Assert.Matches(@"^EMP-\d{4}$", creada.Codigo);
         Assert.Equal(datos.Ruc, creada.Ruc);
+    }
+
+    [Fact]
+    public async Task Crear_DosEmpresas_RecibenCodigosDistintosYCrecientes()
+    {
+        var primera = await CrearOk(NuevaEmpresa());
+        var segunda = await CrearOk(NuevaEmpresa());
+
+        Assert.NotEqual(primera.Codigo, segunda.Codigo);
+        Assert.True(string.CompareOrdinal(segunda.Codigo, primera.Codigo) > 0);
+    }
+
+    [Fact]
+    public async Task Crear_IgnoraElCodigoEnviadoPorElCliente()
+    {
+        var datos = NuevaEmpresa();
+
+        var respuesta = await Admin.PostAsJsonAsync("/api/empresas", new { codigo = "MANUAL", datos.Nombre, datos.Ruc });
+
+        Assert.Equal(HttpStatusCode.Created, respuesta.StatusCode);
+        var creada = await respuesta.Content.ReadFromJsonAsync<EmpresaDto>();
+        Assert.Matches(@"^EMP-\d{4}$", creada!.Codigo);
+    }
+
+    [Fact]
+    public async Task Actualizar_ConservaElCodigoGenerado()
+    {
+        var creada = await CrearOk(NuevaEmpresa());
+
+        var respuesta = await Admin.PutAsJsonAsync($"/api/empresas/{creada.Id}", new { codigo = "OTRO", Nombre = "Otro nombre", Ruc = creada.Ruc });
+
+        Assert.Equal(HttpStatusCode.OK, respuesta.StatusCode);
+        var actualizada = await respuesta.Content.ReadFromJsonAsync<EmpresaDto>();
+        Assert.Equal(creada.Codigo, actualizada!.Codigo);
     }
 
     [Theory]

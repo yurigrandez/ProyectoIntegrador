@@ -52,13 +52,6 @@ public class ClienteGuardarDto
     public int? IdTipoComprobante { get; set; }
 }
 
-/// <summary>El código se define al crear y no se puede cambiar después.</summary>
-public class ClienteCrearDto : ClienteGuardarDto
-{
-    [Required, StringLength(15)]
-    public string Codigo { get; set; } = string.Empty;
-}
-
 public class ClienteFiltro : ConsultaPaginada
 {
     public int? IdTipoDocumento { get; set; }

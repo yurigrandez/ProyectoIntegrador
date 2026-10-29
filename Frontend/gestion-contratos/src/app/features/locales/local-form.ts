@@ -31,12 +31,10 @@ const vacioANulo = (valor: string | null): string | null => valor?.trim() || nul
         }
 
         <div class="formulario">
-          @if (!esEdicion()) {
-            <gc-campo para="codigo" etiqueta="Código" [control]="formulario.controls.codigo" [requerido]="true"
-                      ayuda="Un código corto que no se repita, por ejemplo LOC-013. No se podrá cambiar después.">
-              <input id="codigo" type="text" formControlName="codigo" maxlength="15" autocomplete="off" />
-            </gc-campo>
-          }
+          <gc-campo para="codigo" etiqueta="Código" [control]="formulario.controls.codigo"
+                    ayuda="Lo asigna el sistema al guardar el registro. No se puede modificar.">
+            <input id="codigo" type="text" formControlName="codigo" readonly placeholder="Se genera al guardar" autocomplete="off" />
+          </gc-campo>
           <gc-campo para="empresa" etiqueta="Empresa propietaria" [control]="formulario.controls.idEmpresa" [requerido]="true">
             <select id="empresa" formControlName="idEmpresa">
               <option [ngValue]="null">Elija una empresa…</option>
@@ -112,7 +110,7 @@ export class LocalForm implements OnInit {
   protected readonly estadosEditables = computed(() => this.estados().filter((e) => e.abreviatura === 'DIS' || e.abreviatura === 'MAN'));
 
   protected readonly formulario = inject(FormBuilder).nonNullable.group({
-    codigo: ['', [Validators.required, Validators.maxLength(15)]],
+    codigo: [{ value: '', disabled: true }],
     idEmpresa: [null as number | null, [Validators.required]],
     idTipoLocal: [null as number | null, [Validators.required]],
     direccion: ['', [Validators.maxLength(250)]],
@@ -135,7 +133,6 @@ export class LocalForm implements OnInit {
 
     const id = this.id();
     if (!id) return;
-    this.formulario.controls.codigo.disable();
     this.cargando.set(true);
     this.api.obtener(Number(id)).subscribe({
       next: (l) => {
@@ -182,7 +179,7 @@ export class LocalForm implements OnInit {
     this.guardando.set(true);
     this.error.set(null);
     const id = this.id();
-    const peticion = id ? this.api.actualizar(Number(id), datos) : this.api.crear({ ...datos, codigo: v.codigo.trim() });
+    const peticion = id ? this.api.actualizar(Number(id), datos) : this.api.crear(datos);
     peticion.subscribe({
       next: (local) => {
         this.toast.ok(id ? 'Cambios guardados.' : `Local ${local.codigo} registrado.`);
